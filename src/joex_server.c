@@ -40,7 +40,11 @@ struct _server_t {
     zconfig_t *config;          //  Current loaded configuration
 
     //  TODO: Add any properties you need here
+<<<<<<< HEAD
     zhash_t* clients;
+=======
+    zhashx_t *clients;          // name -> client_t*
+>>>>>>> 1ab40191aec3da1b4a0754c417185c7a3b0895b9
 };
 
 //  ---------------------------------------------------------------------------
@@ -67,7 +71,7 @@ static int
 server_initialize (server_t *self)
 {
     //  Construct properties here
-  self -> clients = zhash_new();
+    self->clients = zhashx_new ();
     return 0;
 }
 
@@ -77,7 +81,7 @@ static void
 server_terminate (server_t *self)
 {
     //  Destroy properties here
-  zhash_destroy(&self -> clients);
+    zhashx_destroy (&self->clients);
 }
 
 //  Process server API method, return reply message if any
@@ -157,6 +161,15 @@ joex_server_test (bool verbose)
     assert (joex_proto_id (request) == JOEX_PROTO_ERROR);
     assert (streq (joex_proto_reason (request), "command invalid"));
 
+    // send hello client1 AGAIN
+    joex_proto_set_id (request, JOEX_PROTO_HELLO);
+    joex_proto_set_name (request, "client1");
+    joex_proto_send (request, client);
+
+    r = joex_proto_recv (request, client);
+    assert (r == 0);
+    assert (joex_proto_id (request) == JOEX_PROTO_ERROR);
+
     joex_proto_destroy (&request);
 
     zsock_destroy (&client);
@@ -181,7 +194,13 @@ register_new_client (client_t *self)
   else {
     zhash_insert(self -> server -> clients, joex_proto_name(self -> message), (void*) self);
     self->name = strdup (joex_proto_name (self->message));
-  }
+
+    if (zhashx_lookup (self->server->clients, self->name)) {
+        engine_set_exception (self, exception_event);
+        zsys_debug ("engine_set_exception");
+    }
+    else
+        zhashx_insert (self->server->clients, self->name, self);
 }
 
 
@@ -198,22 +217,12 @@ signal_command_invalid (client_t *self)
 
 
 //  ---------------------------------------------------------------------------
-//  unregister_client
+//  signal_duplicated_client
 //
 
 static void
-unregister_client (client_t *self)
+signal_duplicated_client (client_t *self)
 {
-
-}
-
-
-//  ---------------------------------------------------------------------------
-//  signal_duplicate_client
-//
-
-static void
-signal_duplicate_client (client_t *self)
-{
-
+    joex_proto_set_reason (self->message, "duplicate user");
+    joex_proto_set_code (self->message, 301);
 }
