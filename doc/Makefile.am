@@ -34,13 +34,13 @@ SUFFIXES=.txt .xml .1 .3 .7
 .xml.7:
 	xmlto man $<
 
-joex_server.txt:
+joex_server.txt joex_server.doc:
 	./mkman $@
-joex_proto.txt:
+joex_proto.txt joex_proto.doc:
 	./mkman $@
-joexd.txt:
+joexd.txt joexd.doc:
 	./mkman joexd $@
-joexc.txt:
+joexc.txt joexc.doc:
 	./mkman joexc $@
 clean:
 	rm -f *.1 *.3 *.7
