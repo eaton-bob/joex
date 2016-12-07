@@ -74,6 +74,11 @@ src_joex_selftest_LDADD = ${program_libs}
 src_joex_selftest_SOURCES = src/joex_selftest.c
 endif #ENABLE_JOEX_SELFTEST
 
+# Install api files into /usr/local/share/zproject
+apidir = @datadir@/zproject/joex
+dist_api_DATA = \
+    api/joex_proto.api
+
 # define custom target for all products of /src
 src:
 	src/joexd \
@@ -83,6 +88,7 @@ src:
 
 # Produce generated code from models in the src directory
 code:
+	cd $(srcdir)/src; gsl -topdir:.. -zproject:1 -q joex_server.xml
 	cd $(srcdir)/src; gsl -topdir:.. -zproject:1 -q joex_proto.xml
 	cd $(srcdir); gsl -target:- project.xml
 
