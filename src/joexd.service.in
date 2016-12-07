@@ -1,0 +1,11 @@
+[Unit]
+Description=joexd service
+After=network.target
+
+[Service]
+Type=simple
+Environment="prefix=@prefix@"
+ExecStart=@prefix@/bin/joexd @sysconfdir@/@PACKAGE@/joexd.cfg
+
+[Install]
+WantedBy=multi-user.target

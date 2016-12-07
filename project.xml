@@ -1,0 +1,27 @@
+<project
+    name = "joex"
+    description = "Joe extended server"
+    script = "zproject.gsl"
+    email = "joe@eaton.com"
+    url = "https://eaton.com/"
+    license = "MPL"
+    >
+
+    <include filename = "license.xml" />
+    <version major = "0" minor = "1" patch = "0" />
+    <use project = "czmq" />
+
+    <class name = "joex_server" state = "stable" />
+    <class name = "joex_proto" state = "stable" />
+    <model name = "joex_server" codec="zproto_server_c" />
+    <model name = "joex_proto" codec="zproto_codec_c" />
+
+    <main name = "joexd" service = "1">
+        Joe daemon
+    </main>
+
+    <main name = "joexc">
+        Joe client
+    </main>
+
+</project>
