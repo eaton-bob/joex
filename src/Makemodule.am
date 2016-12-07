@@ -20,6 +20,7 @@ include_HEADERS = \
 
 src_libjoex_la_SOURCES = \
     src/joex_server.c \
+    src/joex_server_engine.inc \
     src/joex_proto.c \
     src/platform.h
 
