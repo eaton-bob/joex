@@ -24,21 +24,24 @@
 //  State machine constants
 
 typedef enum {
-    start_state = 1
+    start_state = 1,
+    connected_state = 2
 } state_t;
 
 typedef enum {
     NULL_event = 0,
     terminate_event = 1,
     hello_event = 2,
-    exception_event = 3
+    exception_event = 3,
+    close_event = 4
 } event_t;
 
 //  Names for state machine logging and error reporting
 static char *
 s_state_name [] = {
     "(NONE)",
-    "start"
+    "start",
+    "connected"
 };
 
 static char *
@@ -46,7 +49,8 @@ s_event_name [] = {
     "(NONE)",
     "terminate",
     "HELLO",
-    "exception"
+    "exception",
+    "CLOSE"
 };
 
 //  ---------------------------------------------------------------------------
@@ -115,6 +119,8 @@ static void
     signal_duplicated_client (client_t *self);
 static void
     signal_command_invalid (client_t *self);
+static void
+    unregister_client (client_t *self);
 
 //  ---------------------------------------------------------------------------
 //  These methods are an internal API for actions
@@ -303,6 +309,9 @@ s_protocol_event (joex_proto_t *message)
         case JOEX_PROTO_HELLO:
             return hello_event;
             break;
+        case JOEX_PROTO_CLOSE:
+            return close_event;
+            break;
         default:
             //  Invalid joex_proto_t
             return terminate_event;
@@ -404,6 +413,8 @@ s_client_execute (s_client_t *self, event_t event)
                         joex_proto_set_routing_id (self->server->message, self->routing_id);
                         joex_proto_send (self->server->message, self->server->router);
                     }
+                    if (!self->exception)
+                        self->state = connected_state;
                 }
                 else
                 if (self->event == exception_event) {
@@ -422,6 +433,46 @@ s_client_execute (s_client_t *self, event_t event)
                         joex_proto_set_routing_id (self->server->message, self->routing_id);
                         joex_proto_send (self->server->message, self->server->router);
                     }
+                }
+                else {
+                    //  Handle unexpected protocol events
+                    if (!self->exception) {
+                        //  signal command invalid
+                        if (self->server->verbose)
+                            zsys_debug ("%s:         $ signal command invalid", self->log_prefix);
+                        signal_command_invalid (&self->client);
+                    }
+                    if (!self->exception) {
+                        //  send ERROR
+                        if (self->server->verbose)
+                            zsys_debug ("%s:         $ send ERROR",
+                                self->log_prefix);
+                        joex_proto_set_id (self->server->message, JOEX_PROTO_ERROR);
+                        joex_proto_set_routing_id (self->server->message, self->routing_id);
+                        joex_proto_send (self->server->message, self->server->router);
+                    }
+                }
+                break;
+
+            case connected_state:
+                if (self->event == close_event) {
+                    if (!self->exception) {
+                        //  unregister_client
+                        if (self->server->verbose)
+                            zsys_debug ("%s:         $ unregister_client", self->log_prefix);
+                        unregister_client (&self->client);
+                    }
+                    if (!self->exception) {
+                        //  send OK
+                        if (self->server->verbose)
+                            zsys_debug ("%s:         $ send OK",
+                                self->log_prefix);
+                        joex_proto_set_id (self->server->message, JOEX_PROTO_OK);
+                        joex_proto_set_routing_id (self->server->message, self->routing_id);
+                        joex_proto_send (self->server->message, self->server->router);
+                    }
+                    if (!self->exception)
+                        self->state = start_state;
                 }
                 else {
                     //  Handle unexpected protocol events

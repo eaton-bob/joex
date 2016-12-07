@@ -215,3 +215,14 @@ signal_duplicated_client (client_t *self)
     joex_proto_set_reason (self->message, "duplicate user");
     joex_proto_set_code (self->message, 301);
 }
+
+
+//  ---------------------------------------------------------------------------
+//  unregister_client
+//
+
+static void
+unregister_client (client_t *self)
+{
+
+}
