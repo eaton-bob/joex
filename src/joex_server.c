@@ -40,6 +40,7 @@ struct _server_t {
     zconfig_t *config;          //  Current loaded configuration
 
     //  TODO: Add any properties you need here
+    zhash_t* clients;
 };
 
 //  ---------------------------------------------------------------------------
@@ -66,6 +67,7 @@ static int
 server_initialize (server_t *self)
 {
     //  Construct properties here
+  self -> clients = zhash_new();
     return 0;
 }
 
@@ -75,6 +77,7 @@ static void
 server_terminate (server_t *self)
 {
     //  Destroy properties here
+  zhash_destroy(&self -> clients);
 }
 
 //  Process server API method, return reply message if any
@@ -170,7 +173,15 @@ joex_server_test (bool verbose)
 static void
 register_new_client (client_t *self)
 {
+  client_t* other_ = (client_t*) zhash_lookup(
+      self -> server -> clients, joex_proto_name(self -> message));
+  if(other_ != NULL) {
+    engine_set_exception(self, exception_event);
+  }
+  else {
+    zhash_insert(self -> server -> clients, joex_proto_name(self -> message), (void*) self);
     self->name = strdup (joex_proto_name (self->message));
+  }
 }
 
 
@@ -183,4 +194,26 @@ signal_command_invalid (client_t *self)
 {
     joex_proto_set_reason (self->message, "command invalid");
     joex_proto_set_code (self->message, 300);
+}
+
+
+//  ---------------------------------------------------------------------------
+//  unregister_client
+//
+
+static void
+unregister_client (client_t *self)
+{
+
+}
+
+
+//  ---------------------------------------------------------------------------
+//  signal_duplicate_client
+//
+
+static void
+signal_duplicate_client (client_t *self)
+{
+
 }
