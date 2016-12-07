@@ -5,6 +5,8 @@
     script = "zproto_codec_c"
     package_dir = "../include"
     source_dir = "."
+    project_header = "joex.h"
+    export_macro = "JOEX_EXPORT"
     >
 
     <message name = "HELLO" type = "string">

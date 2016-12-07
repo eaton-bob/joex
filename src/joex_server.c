@@ -103,7 +103,7 @@ static int
 client_initialize (client_t *self)
 {
     //  Construct properties here
-    self->name = strdup (joex_proto_name (self->message));
+    self->name = NULL;
     return 0;
 }
 
@@ -203,12 +203,14 @@ joex_server_test (bool verbose)
 static void
 register_new_client (client_t *self)
 {
-    if (zhashx_lookup (self->server->clients, self->name)) {
+    if (zhashx_lookup (self->server->clients, joex_proto_name (self->message))) {
         engine_set_exception (self, exception_event);
         zsys_debug ("engine_set_exception");
     }
-    else
-        zhashx_insert (self->server->clients, self->name, self);
+    else {
+      self -> name = strdup(joex_proto_name (self->message));
+      zhashx_insert (self->server->clients, self->name, self);
+    }
 }
 
 

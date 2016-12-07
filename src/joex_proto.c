@@ -22,6 +22,7 @@
 @end
 */
 
+#include "joex.h"
 #include "../include/joex_proto.h"
 
 //  Structure of our class
