@@ -152,6 +152,7 @@ client_is_connected (client_t *self)
 static void
 signal_success (client_t *self)
 {
+    zsock_send (self->cmdpipe, "si", "OK", 0);
 }
 
 
