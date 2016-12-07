@@ -14,13 +14,14 @@ pkgconfig_DATA = src/libjoex.pc
 
 include_HEADERS = \
     include/joex.h \
+    include/joex_client.h \
     include/joex_server.h \
     include/joex_proto.h \
     include/joex_library.h
 
 src_libjoex_la_SOURCES = \
+    src/joex_client.c \
     src/joex_server.c \
-    src/joex_server_engine.inc \
     src/joex_proto.c \
     src/platform.h
 
@@ -89,6 +90,7 @@ src:
 
 # Produce generated code from models in the src directory
 code:
+	cd $(srcdir)/src; gsl -topdir:.. -zproject:1 -q joex_client.xml
 	cd $(srcdir)/src; gsl -topdir:.. -zproject:1 -q joex_server.xml
 	cd $(srcdir)/src; gsl -topdir:.. -zproject:1 -q joex_proto.xml
 	cd $(srcdir); gsl -target:- project.xml
