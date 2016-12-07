@@ -1,0 +1,25 @@
+Name(7)
+=======
+
+
+NAME
+----
+joex - Joe extended server
+
+
+SYNOPSIS
+--------
+----
+#include <joex.h>
+
+cc ['flags'] 'files' -ljoex ['libraries']
+----
+
+
+DESCRIPTION
+-----------
+
+Classes
+~~~~~~~
+
+Something.
