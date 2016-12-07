@@ -16,6 +16,11 @@
             <action name = "send" message = "OK" />
         </event>
 
+        <event name = "exception">
+            <action name = "signal duplicated client" />
+            <action name = "send" message = "ERROR" />
+        </event>
+
         <event name = "*">
             <action name = "signal command invalid" />
             <action name = "send" message = "ERROR" />

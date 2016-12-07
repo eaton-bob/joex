@@ -24,7 +24,6 @@
 #define JOEX_SERVER_H_INCLUDED
 
 #include <czmq.h>
-#include <joex.h>
 
 #ifdef __cplusplus
 extern "C" {
