@@ -5,6 +5,9 @@ digraph "joex_server" {
  "start hello" [shape = "Mrecord" style = solid label = <<table border="0" cellborder="0" cellpadding="3" bgcolor="white"><tr><td bgcolor="black" align="center" colspan="2"><font color="white">hello</font></td></tr><tr><td align="left" port="r3">register_new_client</td></tr><tr><td align="left" port="r3">send</td></tr></table>>];
  "start" -> "start hello";
  "start hello" -> "start";
+ "start exception" [shape = "Mrecord" style = solid label = <<table border="0" cellborder="0" cellpadding="3" bgcolor="white"><tr><td bgcolor="black" align="center" colspan="2"><font color="white">exception</font></td></tr><tr><td align="left" port="r3">signal duplicated client</td></tr><tr><td align="left" port="r3">send</td></tr></table>>];
+ "start" -> "start exception";
+ "start exception" -> "start";
  "start *" [shape = "Mrecord" style = solid label = <<table border="0" cellborder="0" cellpadding="3" bgcolor="white"><tr><td bgcolor="black" align="center" colspan="2"><font color="white">*</font></td></tr><tr><td align="left" port="r3">signal command invalid</td></tr><tr><td align="left" port="r3">send</td></tr></table>>];
  "start" -> "start *";
  "start *" -> "start";

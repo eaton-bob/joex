@@ -164,7 +164,7 @@ joex_server_test (bool verbose)
 
     r = joex_proto_recv (request, client);
     assert (r == 0);
-    assert (joex_proto_id (request) == JOEX_PROTO_OK);
+    assert (joex_proto_id (request) == JOEX_PROTO_ERROR);
 
     joex_proto_destroy (&request);
 
@@ -184,12 +184,12 @@ register_new_client (client_t *self)
 {
     self->name = strdup (joex_proto_name (self->message));
 
-    if (zhashx_lookup (self->server->clients, self->name))
-        zsys_info ("duplicated name");
-    else {
-        zhashx_insert (self->server->clients, self->name, self);
-        zsys_info ("you're original");
+    if (zhashx_lookup (self->server->clients, self->name)) {
+        engine_set_exception (self, exception_event);
+        zsys_debug ("engine_set_exception");
     }
+    else
+        zhashx_insert (self->server->clients, self->name, self);
 }
 
 
@@ -202,4 +202,16 @@ signal_command_invalid (client_t *self)
 {
     joex_proto_set_reason (self->message, "command invalid");
     joex_proto_set_code (self->message, 300);
+}
+
+
+//  ---------------------------------------------------------------------------
+//  signal_duplicated_client
+//
+
+static void
+signal_duplicated_client (client_t *self)
+{
+    joex_proto_set_reason (self->message, "duplicate user");
+    joex_proto_set_code (self->message, 301);
 }
