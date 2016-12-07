@@ -28,7 +28,4 @@ digraph "joex_server" {
  "connected close" [shape = "Mrecord" style = solid label = <<table border="0" cellborder="0" cellpadding="3" bgcolor="white"><tr><td bgcolor="black" align="center" colspan="2"><font color="white">close</font></td></tr><tr><td align="left" port="r3">unregister_client</td></tr><tr><td align="left" port="r3">send</td></tr></table>>];
  "connected" -> "connected close";
  "connected close" -> "start";
- "connected *" [shape = "Mrecord" style = solid label = <<table border="0" cellborder="0" cellpadding="3" bgcolor="white"><tr><td bgcolor="black" align="center" colspan="2"><font color="white">*</font></td></tr><tr><td align="left" port="r3">signal command invalid</td></tr><tr><td align="left" port="r3">send</td></tr></table>>];
- "connected" -> "connected *";
- "connected *" -> "connected";
 }

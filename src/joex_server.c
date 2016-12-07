@@ -186,14 +186,9 @@ joex_server_test (bool verbose)
     assert (r == 0);
     assert (joex_proto_id (request) == JOEX_PROTO_OK);
 
-    // send PING
-    joex_proto_set_id (request, JOEX_PROTO_PING);
-    joex_proto_send (request, client);
-    r = joex_proto_recv (request, client);
-    assert (r == 0);
-    assert (joex_proto_id (request) == JOEX_PROTO_PONG);
+    //check if we get disconnected
+    zclock_sleep (60);
 
-    joex_proto_destroy (&request);
     zsock_destroy (&client);
     zactor_destroy (&server);
     //  @end

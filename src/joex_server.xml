@@ -9,8 +9,9 @@
     >
     This is server implementation of JOE eXtended protocol
     <include filename = "../license.xml" />
+    
 
-    <state name = "start" inherit = "defaults" >
+    <state name = "start" inherit="defaults">
         <event name = "HELLO" next="connected">
             <action name = "register_new_client" />
             <action name = "send" message = "OK" />
@@ -20,22 +21,20 @@
             <action name = "signal duplicated client" />
             <action name = "send" message = "ERROR" />
         </event>
-
         <event name = "*">
             <action name = "signal command invalid" />
             <action name = "send" message = "ERROR" />
         </event>
     </state>
     
-    <state name = "connected" inherit = "defaults" >
+    <state name = "connected" inherit="defaults">
         <event name = "CLOSE" next="start">
             <action name = "unregister_client" />
             <action name = "send" message = "OK" />
-        </event>
-
         <event name = "*">
             <action name = "signal command invalid" />
             <action name = "send" message = "ERROR" />
+        </event>
         </event>
     </state>
 
@@ -43,10 +42,11 @@
         <event name = "PING">
             <action name = "send" message = "PONG" />
         </event>
-        
+
         <event name = "expired">
             <action name = "terminate" />
         </event>
+
     </state>
 
 </class>
