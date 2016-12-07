@@ -1,0 +1,39 @@
+<class
+    name = "joex_proto"
+    signature = "0"
+    title = "joex example protocol"
+    script = "zproto_codec_c"
+    package_dir = "../include"
+    source_dir = "."
+    >
+
+    <message name = "HELLO" type = "string">
+        <field name = "filename" type = "string" />
+        <field name = "aux" type = "hash" />
+    </message>
+
+    <message name = "PING"/>
+        
+    <message name = "PONG"/>
+        
+    <message name = "CHUNK" type = "string">
+        <field name = "filename" type = "string" />
+        <field name = "offset" type = "number" size="8"/>
+        <field name = "size" type = "number" size="8"/>
+        <field name = "checksum" type = "number"size="8" />
+        <field name = "data" type = "chunk" />
+        <field name = "file_size" type = "number" size="8"/>
+        <field name = "file_checksum" type = "number"size="8" />
+    </message>
+
+    <message name = "CLOSE" type = "string">
+        <field name = "filename" type = "string" />
+        <field name = "size" type = "number" size="8"/>
+    </message>
+
+    <message name = "OK" />
+    <message name = "ERROR" >
+        <field name = "reason" type = "string" />
+    </message>
+
+</class>
