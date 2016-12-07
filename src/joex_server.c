@@ -165,7 +165,24 @@ joex_server_test (bool verbose)
     r = joex_proto_recv (request, client);
     assert (r == 0);
     assert (joex_proto_id (request) == JOEX_PROTO_ERROR);
+    assert (streq (joex_proto_reason (request), "command invalid"));
 
+    // send Close client1
+    joex_proto_set_id (request, JOEX_PROTO_CLOSE);
+    joex_proto_send (request, client);
+
+    r = joex_proto_recv (request, client);
+    assert (r == 0);
+    assert (joex_proto_id (request) == JOEX_PROTO_OK);
+    
+    // send hello after close
+    joex_proto_set_id (request, JOEX_PROTO_HELLO);
+    joex_proto_set_name (request, "client1");
+    joex_proto_send (request, client);
+
+    r = joex_proto_recv (request, client);
+    assert (r == 0);
+    assert (joex_proto_id (request) == JOEX_PROTO_OK);
     joex_proto_destroy (&request);
 
     zsock_destroy (&client);
@@ -224,5 +241,5 @@ signal_duplicated_client (client_t *self)
 static void
 unregister_client (client_t *self)
 {
-
+	zhashx_delete(self->server->clients, self->name);
 }
