@@ -23,12 +23,21 @@
     </state>
 
     <state name = "connecting">
-        <event name = "OK" next = "start">
+        <event name = "OK" next = "connected">
             <action name = "client is connected" />
             <action name = "signal success" />
         </event>
         <event name = "ERROR" next = "start">
             <action name = "signal server not present" />
+        </event>
+    </state>
+
+    <state name = "connected">
+        <event name = "heartbeat">
+            <action name = "send" message = "PING" />
+        </event>
+        <event name = "PONG" next = "connected">
+            <action name = "client is connected" />
         </event>
     </state>
 

@@ -34,6 +34,7 @@ typedef struct {
 
     //  TODO: Add specific properties for your application
     char *name;
+    int heartbeat_timer;
 } client_t;
 
 //  Include the generated client engine
@@ -45,6 +46,7 @@ typedef struct {
 static int
 client_initialize (client_t *self)
 {
+    self->heartbeat_timer = 1000;
     return 0;
 }
 
@@ -79,6 +81,8 @@ joex_client_test (bool verbose)
     joex_client_set_verbose(client, verbose);
 
     joex_client_connect (client, endpoint, 1000, "JOEX-CLIENT");
+
+    zclock_sleep (5000);
 
     joex_client_destroy (&client);
     zactor_destroy (&server);
@@ -142,6 +146,11 @@ use_connect_timeout (client_t *self)
 static void
 client_is_connected (client_t *self)
 {
+    engine_set_connected (self, true);
+    //  We send a PING to the server on every heartbeat
+    engine_set_heartbeat (self, self->heartbeat_timer);
+    //  We get an expired event if server sends nothing within 3 heartbeats
+    engine_set_expiry (self, self->heartbeat_timer * 4);
 }
 
 

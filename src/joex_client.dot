@@ -12,8 +12,16 @@ digraph "joex_client" {
  "connecting" [shape = "doublecircle"];
  "connecting ok" [shape = "Mrecord" style = solid label = <<table border="0" cellborder="0" cellpadding="3" bgcolor="white"><tr><td bgcolor="black" align="center" colspan="2"><font color="white">ok</font></td></tr><tr><td align="left" port="r3">client is connected</td></tr><tr><td align="left" port="r3">signal success</td></tr></table>>];
  "connecting" -> "connecting ok";
- "connecting ok" -> "start";
+ "connecting ok" -> "connected";
  "connecting error" [shape = "Mrecord" style = solid label = <<table border="0" cellborder="0" cellpadding="3" bgcolor="white"><tr><td bgcolor="black" align="center" colspan="2"><font color="white">error</font></td></tr><tr><td align="left" port="r3">signal server not present</td></tr></table>>];
  "connecting" -> "connecting error";
  "connecting error" -> "start";
+
+ "connected" [shape = "doublecircle"];
+ "connected heartbeat" [shape = "Mrecord" style = solid label = <<table border="0" cellborder="0" cellpadding="3" bgcolor="white"><tr><td bgcolor="black" align="center" colspan="2"><font color="white">heartbeat</font></td></tr><tr><td align="left" port="r3">send</td></tr></table>>];
+ "connected" -> "connected heartbeat";
+ "connected heartbeat" -> "connected";
+ "connected pong" [shape = "Mrecord" style = solid label = <<table border="0" cellborder="0" cellpadding="3" bgcolor="white"><tr><td bgcolor="black" align="center" colspan="2"><font color="white">pong</font></td></tr><tr><td align="left" port="r3">client is connected</td></tr></table>>];
+ "connected" -> "connected pong";
+ "connected pong" -> "connected";
 }

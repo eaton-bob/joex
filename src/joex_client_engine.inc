@@ -19,14 +19,17 @@
 
 typedef enum {
     start_state = 1,
-    connecting_state = 2
+    connecting_state = 2,
+    connected_state = 3
 } state_t;
 
 typedef enum {
     NULL_event = 0,
     connect_event = 1,
     ok_event = 2,
-    error_event = 3
+    error_event = 3,
+    heartbeat_event = 4,
+    pong_event = 5
 } event_t;
 
 //  Names for state machine logging and error reporting
@@ -34,7 +37,8 @@ static char *
 s_state_name [] = {
     "(NONE)",
     "start",
-    "connecting"
+    "connecting",
+    "connected"
 };
 
 static char *
@@ -42,7 +46,9 @@ s_event_name [] = {
     "(NONE)",
     "connect",
     "OK",
-    "ERROR"
+    "ERROR",
+    "heartbeat",
+    "PONG"
 };
 
 
@@ -93,6 +99,8 @@ static void
     s_client_execute (s_client_t *self, event_t event);
 static int
     s_client_handle_wakeup (zloop_t *loop, int timer_id, void *argument);
+static int
+    s_client_handle_heartbeat (zloop_t *loop, int timer_id, void *argument);
 static void
     s_satisfy_pedantic_compilers (void);
 static void
@@ -223,6 +231,13 @@ engine_set_heartbeat (client_t *client, size_t heartbeat)
     if (client) {
         s_client_t *self = (s_client_t *) client;
         self->heartbeat = heartbeat;
+        if (self->heartbeat_timer) {
+            zloop_timer_end (self->loop, self->heartbeat_timer);
+            self->heartbeat_timer = 0;
+        }
+        if (self->heartbeat)
+            self->heartbeat_timer = zloop_timer (
+                self->loop, self->heartbeat, 1, s_client_handle_heartbeat, self);
     }
 }
 
@@ -299,6 +314,9 @@ s_protocol_event (s_client_t *self, joex_proto_t *message)
 {
     assert (message);
     switch (joex_proto_id (message)) {
+        case JOEX_PROTO_PONG:
+            return pong_event;
+            break;
         case JOEX_PROTO_OK:
             return ok_event;
             break;
@@ -396,7 +414,7 @@ s_client_execute (s_client_t *self, event_t event)
                         signal_success (&self->client);
                     }
                     if (!self->exception)
-                        self->state = start_state;
+                        self->state = connected_state;
                 }
                 else
                 if (self->event == error_event) {
@@ -408,6 +426,38 @@ s_client_execute (s_client_t *self, event_t event)
                     }
                     if (!self->exception)
                         self->state = start_state;
+                }
+                else {
+                    //  Handle unexpected internal events
+                    zsys_warning ("%s: unhandled event %s in %s",
+                        self->log_prefix,
+                        s_event_name [self->event],
+                        s_state_name [self->state]);
+                    assert (false);
+                }
+                break;
+
+            case connected_state:
+                if (self->event == heartbeat_event) {
+                    if (!self->exception) {
+                        //  send PING
+                        if (self->verbose)
+                            zsys_debug ("%s:         $ send PING",
+                                self->log_prefix);
+                        joex_proto_set_id (self->message, JOEX_PROTO_PING);
+                        joex_proto_send (self->message, self->dealer);
+                    }
+                }
+                else
+                if (self->event == pong_event) {
+                    if (!self->exception) {
+                        //  client is connected
+                        if (self->verbose)
+                            zsys_debug ("%s:         $ client is connected", self->log_prefix);
+                        client_is_connected (&self->client);
+                    }
+                    if (!self->exception)
+                        self->state = connected_state;
                 }
                 else {
                     //  Handle unexpected internal events
@@ -431,6 +481,22 @@ s_client_execute (s_client_t *self, event_t event)
             zsys_debug ("%s:         > %s",
                     self->log_prefix, s_state_name [self->state]);
     }
+}
+
+//  zloop callback when client heartbeat timer expires
+
+static int
+s_client_handle_heartbeat (zloop_t *loop, int timer_id, void *argument)
+{
+    s_client_t *self = (s_client_t *) argument;
+    s_client_execute (self, heartbeat_event);
+    if (self->terminated)
+        return -1;
+
+    if (self->heartbeat > 0)
+        self->heartbeat_timer = zloop_timer (
+            loop, self->heartbeat, 1, s_client_handle_heartbeat, self);
+    return 0;
 }
 
 //  zloop callback when client wakeup timer expires
