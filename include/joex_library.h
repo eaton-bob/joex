@@ -60,6 +60,8 @@
 
 //  Opaque class structures to allow forward references
 //  These classes are stable or legacy and built in all releases
+typedef struct _joex_client_t joex_client_t;
+#define JOEX_CLIENT_T_DEFINED
 typedef struct _joex_server_t joex_server_t;
 #define JOEX_SERVER_T_DEFINED
 typedef struct _joex_proto_t joex_proto_t;
@@ -67,6 +69,7 @@ typedef struct _joex_proto_t joex_proto_t;
 
 
 //  Public classes, each with its own header file
+#include "joex_client.h"
 #include "joex_server.h"
 #include "joex_proto.h"
 

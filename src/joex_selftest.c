@@ -28,6 +28,7 @@ typedef struct {
 
 static test_item_t
 all_tests [] = {
+    { "joex_client", joex_client_test },
     { "joex_server", joex_server_test },
     { "joex_proto", joex_proto_test },
     {0, 0}          //  Sentinel
@@ -87,13 +88,14 @@ main (int argc, char **argv)
         else
         if (streq (argv [argn], "--number")
         ||  streq (argv [argn], "-n")) {
-            puts ("2");
+            puts ("3");
             return 0;
         }
         else
         if (streq (argv [argn], "--list")
         ||  streq (argv [argn], "-l")) {
             puts ("Available tests:");
+            puts ("    joex_client");
             puts ("    joex_server");
             puts ("    joex_proto");
             return 0;

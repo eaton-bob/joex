@@ -120,6 +120,7 @@ ENDIF (CZMQ_FOUND)
 set (joex_headers
     include/joex_library.h
     include/joex.h
+    include/joex_client.h
     include/joex_server.h
     include/joex_proto.h
 )
@@ -132,6 +133,7 @@ install(FILES ${joex_headers} DESTINATION include)
 ########################################################################
 include_directories("${SOURCE_DIR}/src" "${SOURCE_DIR}/include")
 set (joex_sources
+    src/joex_client.c
     src/joex_server.c
     src/joex_proto.c
 )
@@ -242,6 +244,7 @@ if(UNIX)
 endif()
 
 set(TEST_CLASSES
+    joex_client
     joex_server
     joex_proto
 )

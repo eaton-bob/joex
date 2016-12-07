@@ -1,0 +1,19 @@
+## Automatically generated from joex_client.xml by gsl
+digraph "joex_client" {
+
+ "start" [shape = "doublecircle"];
+ "start connect" [shape = "Mrecord" style = solid label = <<table border="0" cellborder="0" cellpadding="3" bgcolor="white"><tr><td bgcolor="black" align="center" colspan="2"><font color="white">connect</font></td></tr><tr><td align="left" port="r3">remember client address</td></tr><tr><td align="left" port="r3">connect to server endpoint</td></tr><tr><td align="left" port="r3">set client address</td></tr><tr><td align="left" port="r3">use connect timeout</td></tr><tr><td align="left" port="r3">send</td></tr></table>>];
+ "start" -> "start connect";
+ "start connect" -> "connecting";
+ "start *" [shape = "Mrecord" style = solid label = <<table border="0" cellborder="0" cellpadding="3" bgcolor="white"><tr><td bgcolor="black" align="center" colspan="2"><font color="white">*</font></td></tr></table>>];
+ "start" -> "start *";
+ "start *" -> "start";
+
+ "connecting" [shape = "doublecircle"];
+ "connecting ok" [shape = "Mrecord" style = solid label = <<table border="0" cellborder="0" cellpadding="3" bgcolor="white"><tr><td bgcolor="black" align="center" colspan="2"><font color="white">ok</font></td></tr><tr><td align="left" port="r3">client is connected</td></tr><tr><td align="left" port="r3">signal success</td></tr></table>>];
+ "connecting" -> "connecting ok";
+ "connecting ok" -> "start";
+ "connecting error" [shape = "Mrecord" style = solid label = <<table border="0" cellborder="0" cellpadding="3" bgcolor="white"><tr><td bgcolor="black" align="center" colspan="2"><font color="white">error</font></td></tr><tr><td align="left" port="r3">signal server not present</td></tr></table>>];
+ "connecting" -> "connecting error";
+ "connecting error" -> "start";
+}
