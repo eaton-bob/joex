@@ -40,6 +40,7 @@ struct _server_t {
     zconfig_t *config;          //  Current loaded configuration
 
     //  TODO: Add any properties you need here
+    zhashx_t *clients;          // name -> client_t*
 };
 
 //  ---------------------------------------------------------------------------
@@ -66,6 +67,7 @@ static int
 server_initialize (server_t *self)
 {
     //  Construct properties here
+    self->clients = zhashx_new ();
     return 0;
 }
 
@@ -75,6 +77,7 @@ static void
 server_terminate (server_t *self)
 {
     //  Destroy properties here
+    zhashx_destroy (&self->clients);
 }
 
 //  Process server API method, return reply message if any
@@ -154,6 +157,15 @@ joex_server_test (bool verbose)
     assert (joex_proto_id (request) == JOEX_PROTO_ERROR);
     assert (streq (joex_proto_reason (request), "command invalid"));
 
+    // send hello client1 AGAIN
+    joex_proto_set_id (request, JOEX_PROTO_HELLO);
+    joex_proto_set_name (request, "client1");
+    joex_proto_send (request, client);
+
+    r = joex_proto_recv (request, client);
+    assert (r == 0);
+    assert (joex_proto_id (request) == JOEX_PROTO_OK);
+
     joex_proto_destroy (&request);
 
     zsock_destroy (&client);
@@ -171,6 +183,13 @@ static void
 register_new_client (client_t *self)
 {
     self->name = strdup (joex_proto_name (self->message));
+
+    if (zhashx_lookup (self->server->clients, self->name))
+        zsys_info ("duplicated name");
+    else {
+        zhashx_insert (self->server->clients, self->name, self);
+        zsys_info ("you're original");
+    }
 }
 
 
