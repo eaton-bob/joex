@@ -242,4 +242,5 @@ static void
 unregister_client (client_t *self)
 {
 	zhashx_delete(self->server->clients, self->name);
+    zstr_free(&self->name);
 }
