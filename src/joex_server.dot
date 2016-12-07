@@ -8,15 +8,15 @@ digraph "joex_server" {
  "start expired" [shape = "Mrecord" style = dashed label = <<table border="0" cellborder="0" cellpadding="3" bgcolor="white"><tr><td bgcolor="black" align="center" colspan="2"><font color="white">expired</font></td></tr><tr><td align="left" port="r3">terminate</td></tr></table>>];
  "start" -> "start expired";
  "start expired" -> "start";
+ "start *" [shape = "Mrecord" style = dashed label = <<table border="0" cellborder="0" cellpadding="3" bgcolor="white"><tr><td bgcolor="black" align="center" colspan="2"><font color="white">*</font></td></tr><tr><td align="left" port="r3">signal command invalid</td></tr><tr><td align="left" port="r3">send</td></tr></table>>];
+ "start" -> "start *";
+ "start *" -> "start";
  "start hello" [shape = "Mrecord" style = solid label = <<table border="0" cellborder="0" cellpadding="3" bgcolor="white"><tr><td bgcolor="black" align="center" colspan="2"><font color="white">hello</font></td></tr><tr><td align="left" port="r3">register_new_client</td></tr><tr><td align="left" port="r3">send</td></tr></table>>];
  "start" -> "start hello";
  "start hello" -> "connected";
  "start exception" [shape = "Mrecord" style = solid label = <<table border="0" cellborder="0" cellpadding="3" bgcolor="white"><tr><td bgcolor="black" align="center" colspan="2"><font color="white">exception</font></td></tr><tr><td align="left" port="r3">signal duplicated client</td></tr><tr><td align="left" port="r3">send</td></tr></table>>];
  "start" -> "start exception";
  "start exception" -> "start";
- "start *" [shape = "Mrecord" style = solid label = <<table border="0" cellborder="0" cellpadding="3" bgcolor="white"><tr><td bgcolor="black" align="center" colspan="2"><font color="white">*</font></td></tr><tr><td align="left" port="r3">signal command invalid</td></tr><tr><td align="left" port="r3">send</td></tr></table>>];
- "start" -> "start *";
- "start *" -> "start";
 
  "connected" [shape = "doublecircle"];
  "connected ping" [shape = "Mrecord" style = dashed label = <<table border="0" cellborder="0" cellpadding="3" bgcolor="white"><tr><td bgcolor="black" align="center" colspan="2"><font color="white">ping</font></td></tr><tr><td align="left" port="r3">send</td></tr></table>>];
@@ -25,6 +25,9 @@ digraph "joex_server" {
  "connected expired" [shape = "Mrecord" style = dashed label = <<table border="0" cellborder="0" cellpadding="3" bgcolor="white"><tr><td bgcolor="black" align="center" colspan="2"><font color="white">expired</font></td></tr><tr><td align="left" port="r3">terminate</td></tr></table>>];
  "connected" -> "connected expired";
  "connected expired" -> "connected";
+ "connected *" [shape = "Mrecord" style = dashed label = <<table border="0" cellborder="0" cellpadding="3" bgcolor="white"><tr><td bgcolor="black" align="center" colspan="2"><font color="white">*</font></td></tr><tr><td align="left" port="r3">signal command invalid</td></tr><tr><td align="left" port="r3">send</td></tr></table>>];
+ "connected" -> "connected *";
+ "connected *" -> "connected";
  "connected close" [shape = "Mrecord" style = solid label = <<table border="0" cellborder="0" cellpadding="3" bgcolor="white"><tr><td bgcolor="black" align="center" colspan="2"><font color="white">close</font></td></tr><tr><td align="left" port="r3">unregister_client</td></tr><tr><td align="left" port="r3">send</td></tr></table>>];
  "connected" -> "connected close";
  "connected close" -> "start";

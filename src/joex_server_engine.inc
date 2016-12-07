@@ -126,9 +126,9 @@ static void
 static void
     signal_duplicated_client (client_t *self);
 static void
-    signal_command_invalid (client_t *self);
-static void
     unregister_client (client_t *self);
+static void
+    signal_command_invalid (client_t *self);
 
 //  ---------------------------------------------------------------------------
 //  These methods are an internal API for actions
@@ -531,12 +531,22 @@ s_client_execute (s_client_t *self, event_t event)
                     }
                 }
                 else {
-                    //  Handle unexpected internal events
-                    zsys_warning ("%s: unhandled event %s in %s",
-                        self->log_prefix,
-                        s_event_name [self->event],
-                        s_state_name [self->state]);
-                    assert (false);
+                    //  Handle unexpected protocol events
+                    if (!self->exception) {
+                        //  signal command invalid
+                        if (self->server->verbose)
+                            zsys_debug ("%s:         $ signal command invalid", self->log_prefix);
+                        signal_command_invalid (&self->client);
+                    }
+                    if (!self->exception) {
+                        //  send ERROR
+                        if (self->server->verbose)
+                            zsys_debug ("%s:         $ send ERROR",
+                                self->log_prefix);
+                        joex_proto_set_id (self->server->message, JOEX_PROTO_ERROR);
+                        joex_proto_set_routing_id (self->server->message, self->routing_id);
+                        joex_proto_send (self->server->message, self->server->router);
+                    }
                 }
                 break;
 
@@ -562,12 +572,22 @@ s_client_execute (s_client_t *self, event_t event)
                     }
                 }
                 else {
-                    //  Handle unexpected internal events
-                    zsys_warning ("%s: unhandled event %s in %s",
-                        self->log_prefix,
-                        s_event_name [self->event],
-                        s_state_name [self->state]);
-                    assert (false);
+                    //  Handle unexpected protocol events
+                    if (!self->exception) {
+                        //  signal command invalid
+                        if (self->server->verbose)
+                            zsys_debug ("%s:         $ signal command invalid", self->log_prefix);
+                        signal_command_invalid (&self->client);
+                    }
+                    if (!self->exception) {
+                        //  send ERROR
+                        if (self->server->verbose)
+                            zsys_debug ("%s:         $ send ERROR",
+                                self->log_prefix);
+                        joex_proto_set_id (self->server->message, JOEX_PROTO_ERROR);
+                        joex_proto_set_routing_id (self->server->message, self->routing_id);
+                        joex_proto_send (self->server->message, self->server->router);
+                    }
                 }
                 break;
         }
