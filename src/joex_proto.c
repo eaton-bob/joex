@@ -885,7 +885,7 @@ joex_proto_test (bool verbose)
         assert (joex_proto_routing_id (self));
         assert (streq (joex_proto_name (self), "Life is short but Now lasts for ever"));
         zhash_t *header = joex_proto_get_header (self);
-        assert (zhash_size (header) == 1);
+        assert (zhash_size (header) == 2);
         assert (streq ((char *) zhash_first (header), "Brutus"));
         assert (streq ((char *) zhash_cursor (header), "Name"));
         zhash_destroy (&header);
