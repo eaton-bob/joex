@@ -26,10 +26,7 @@
         <field name = "file_checksum" type = "number"size="8" />
     </message>
 
-    <message name = "CLOSE" type = "string">
-        <field name = "filename" type = "string" />
-        <field name = "size" type = "number" size="8"/>
-    </message>
+    <message name = "CLOSE" type = "string"/>
 
     <message name = "OK" />
     <message name = "ERROR" >
