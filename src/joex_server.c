@@ -187,7 +187,6 @@ joex_server_test (bool verbose)
     joex_proto_destroy (&request);
 
     //check if we get disconnected
-    zclock_sleep (60);
 
     zsock_destroy (&client);
     zactor_destroy (&server);
