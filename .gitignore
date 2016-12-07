@@ -28,6 +28,11 @@ src/joex_selftest
 *.app
 core
 
+ # Distcheck workspace and archives
+joex-0.1.0/
+joex-0.1.0.tar.gz
+joex-0.1.0.zip
+
 # Man pages
 doc/*.1
 doc/*.3
