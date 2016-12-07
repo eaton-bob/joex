@@ -1,7 +1,7 @@
 <class
-    name = "joe_proto"
+    name = "joex_proto"
     signature = "0"
-    title = "joe example protocol"
+    title = "joex example protocol"
     script = "zproto_codec_c"
     package_dir = "../include"
     source_dir = "."
