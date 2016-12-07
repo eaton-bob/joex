@@ -25,7 +25,8 @@
 
 typedef enum {
     start_state = 1,
-    connected_state = 2
+    connected_state = 2,
+    defaults_state = 3
 } state_t;
 
 typedef enum {
@@ -33,7 +34,9 @@ typedef enum {
     terminate_event = 1,
     hello_event = 2,
     exception_event = 3,
-    close_event = 4
+    close_event = 4,
+    ping_event = 5,
+    expired_event = 6
 } event_t;
 
 //  Names for state machine logging and error reporting
@@ -41,7 +44,8 @@ static char *
 s_state_name [] = {
     "(NONE)",
     "start",
-    "connected"
+    "connected",
+    "defaults"
 };
 
 static char *
@@ -50,7 +54,9 @@ s_event_name [] = {
     "terminate",
     "HELLO",
     "exception",
-    "CLOSE"
+    "CLOSE",
+    "PING",
+    "expired"
 };
 
 //  ---------------------------------------------------------------------------
@@ -113,6 +119,8 @@ static void
     s_client_execute (s_client_t *client, event_t event);
 static int
     s_client_handle_wakeup (zloop_t *loop, int timer_id, void *argument);
+static int
+    s_client_handle_ticket (zloop_t *loop, int timer_id, void *argument);
 static void
     register_new_client (client_t *self);
 static void
@@ -309,6 +317,9 @@ s_protocol_event (joex_proto_t *message)
         case JOEX_PROTO_HELLO:
             return hello_event;
             break;
+        case JOEX_PROTO_PING:
+            return ping_event;
+            break;
         case JOEX_PROTO_CLOSE:
             return close_event;
             break;
@@ -338,6 +349,9 @@ s_client_new (s_server_t *server, zframe_t *routing_id)
     self->client.server = (server_t *) server;
     self->client.message = server->message;
 
+    //  If expiry timers are being used, create client ticket
+    if (server->timeout)
+        self->ticket = zloop_ticket (server->loop, s_client_handle_ticket, self);
     //  Give application chance to initialize and set next event
     self->state = start_state;
     self->event = NULL_event;
@@ -434,6 +448,27 @@ s_client_execute (s_client_t *self, event_t event)
                         joex_proto_send (self->server->message, self->server->router);
                     }
                 }
+                else
+                if (self->event == ping_event) {
+                    if (!self->exception) {
+                        //  send PONG
+                        if (self->server->verbose)
+                            zsys_debug ("%s:         $ send PONG",
+                                self->log_prefix);
+                        joex_proto_set_id (self->server->message, JOEX_PROTO_PONG);
+                        joex_proto_set_routing_id (self->server->message, self->routing_id);
+                        joex_proto_send (self->server->message, self->server->router);
+                    }
+                }
+                else
+                if (self->event == expired_event) {
+                    if (!self->exception) {
+                        //  terminate
+                        if (self->server->verbose)
+                            zsys_debug ("%s:         $ terminate", self->log_prefix);
+                        self->next_event = terminate_event;
+                    }
+                }
                 else {
                     //  Handle unexpected protocol events
                     if (!self->exception) {
@@ -474,6 +509,27 @@ s_client_execute (s_client_t *self, event_t event)
                     if (!self->exception)
                         self->state = start_state;
                 }
+                else
+                if (self->event == ping_event) {
+                    if (!self->exception) {
+                        //  send PONG
+                        if (self->server->verbose)
+                            zsys_debug ("%s:         $ send PONG",
+                                self->log_prefix);
+                        joex_proto_set_id (self->server->message, JOEX_PROTO_PONG);
+                        joex_proto_set_routing_id (self->server->message, self->routing_id);
+                        joex_proto_send (self->server->message, self->server->router);
+                    }
+                }
+                else
+                if (self->event == expired_event) {
+                    if (!self->exception) {
+                        //  terminate
+                        if (self->server->verbose)
+                            zsys_debug ("%s:         $ terminate", self->log_prefix);
+                        self->next_event = terminate_event;
+                    }
+                }
                 else {
                     //  Handle unexpected protocol events
                     if (!self->exception) {
@@ -491,6 +547,37 @@ s_client_execute (s_client_t *self, event_t event)
                         joex_proto_set_routing_id (self->server->message, self->routing_id);
                         joex_proto_send (self->server->message, self->server->router);
                     }
+                }
+                break;
+
+            case defaults_state:
+                if (self->event == ping_event) {
+                    if (!self->exception) {
+                        //  send PONG
+                        if (self->server->verbose)
+                            zsys_debug ("%s:         $ send PONG",
+                                self->log_prefix);
+                        joex_proto_set_id (self->server->message, JOEX_PROTO_PONG);
+                        joex_proto_set_routing_id (self->server->message, self->routing_id);
+                        joex_proto_send (self->server->message, self->server->router);
+                    }
+                }
+                else
+                if (self->event == expired_event) {
+                    if (!self->exception) {
+                        //  terminate
+                        if (self->server->verbose)
+                            zsys_debug ("%s:         $ terminate", self->log_prefix);
+                        self->next_event = terminate_event;
+                    }
+                }
+                else {
+                    //  Handle unexpected internal events
+                    zsys_warning ("%s: unhandled event %s in %s",
+                        self->log_prefix,
+                        s_event_name [self->event],
+                        s_state_name [self->state]);
+                    assert (false);
                 }
                 break;
         }
@@ -512,6 +599,17 @@ s_client_execute (s_client_t *self, event_t event)
             zsys_debug ("%s:         > %s",
                 self->log_prefix, s_state_name [self->state]);
     }
+}
+
+//  zloop callback when client ticket expires
+
+static int
+s_client_handle_ticket (zloop_t *loop, int timer_id, void *argument)
+{
+    s_client_t *self = (s_client_t *) argument;
+    self->ticket = NULL;        //  Ticket is now dead
+    s_client_execute (self, expired_event);
+    return 0;
 }
 
 //  zloop callback when client wakeup timer expires

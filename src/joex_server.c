@@ -131,6 +131,7 @@ joex_server_test (bool verbose)
     if (verbose)
         zstr_send (server, "VERBOSE");
     zstr_sendx (server, "BIND", "ipc://@/joex_server", NULL);
+    zstr_sendx (server, "SET", "server/timeout", "3000", NULL);
 
     zsock_t *client = zsock_new (ZMQ_DEALER);
     assert (client);
@@ -184,8 +185,15 @@ joex_server_test (bool verbose)
     r = joex_proto_recv (request, client);
     assert (r == 0);
     assert (joex_proto_id (request) == JOEX_PROTO_OK);
-    joex_proto_destroy (&request);
 
+    // send PING
+    joex_proto_set_id (request, JOEX_PROTO_PING);
+    joex_proto_send (request, client);
+    r = joex_proto_recv (request, client);
+    assert (r == 0);
+    assert (joex_proto_id (request) == JOEX_PROTO_PONG);
+
+    joex_proto_destroy (&request);
     zsock_destroy (&client);
     zactor_destroy (&server);
     //  @end
