@@ -1,0 +1,173 @@
+<!--
+    joex_proto - joex example protocol
+
+    Codec class for joex_proto.
+
+    ** WARNING *************************************************************
+    THIS SOURCE FILE IS 100% GENERATED. If you edit this file, you will lose
+    your changes at the next build cycle. This is great for temporary printf
+    statements. DO NOT MAKE ANY CHANGES YOU WISH TO KEEP. The correct places
+    for commits are:
+
+     * The XML model used for this code generation: joex_proto.xml, or
+     * The code generation script that built this file: zproto_codec_c
+    ************************************************************************
+ -->
+<class name = "joex_proto">
+    <constant name = "hello" value = "1" />
+    <constant name = "ping" value = "2" />
+    <constant name = "pong" value = "3" />
+    <constant name = "ok" value = "4" />
+    <constant name = "close" value = "5" />
+    <constant name = "error" value = "6" />
+    <constant name = "chunk" value = "7" />
+    <constant name = "upload" value = "8" />
+    <constant name = "upload_finished" value = "9" />
+
+<constructor>
+    Create a new empty joex_proto
+</constructor>
+
+<destructor>
+    Destroy a joex_proto instance
+</destructor>
+
+<method name = "recv">
+    Receive a joex_proto from the socket. Returns 0 if OK, -1 if
+    there was an error. Blocks if there is no message waiting.
+    <argument name = "input" type = "zsock" />
+    <return type = "integer" />
+</method>
+
+<method name = "send">
+    Send the joex_proto to the output socket, does not destroy it
+    <argument name = "output" type = "zsock" />
+    <return type = "integer" />
+</method>
+
+<method name = "print">
+    Print contents of message to stdout
+</method>
+
+<method name = "routing id">
+    Get the message routing id, as a frame
+    <return type = "zframe" />
+</method>
+
+<method name = "set routing id">
+    Set the message routing id from a frame
+    <argument name = "routing id" type = "zframe" />
+</method>
+
+<method name = "id">
+    Get the joex_proto message id
+    <return type = "integer" />
+</method>
+
+<method name = "set id">
+    Set the joex_proto message id
+    <argument name = "id" type = "integer" />
+</method>
+
+<method name = "command">
+    Get the joex_proto message id as printable text
+    <return type = "string" />
+</method>
+
+<method name = "name">
+    Get the name field
+    <return type = "string" />
+</method>
+<method name = "set name">
+    Set the name field
+    <argument name = "name" type = "string" />
+</method>
+<method name = "header">
+    Get a copy of the header field
+    <return type = "zhash" />
+</method>
+<method name = "get header">
+    Get the header field and transfer ownership to caller
+    <return type = "zhash" />
+</method>
+    Set the header field, transferring ownership from caller
+<method name = "set header">
+    <argument name = "header_p" type = "zhash" by_reference = "1" />
+</method>
+<method name = "reason">
+    Get the reason field
+    <return type = "string" />
+</method>
+<method name = "set reason">
+    Set the reason field
+    <argument name = "reason" type = "string" />
+</method>
+<method name = "code">
+    Get the code field
+    <return type = "number" size = "8" />
+</method>
+<method name = "set code">
+    Set the code field
+    <argument name = "code" type = "number" size = "8" />
+</method>
+<method name = "data">
+    Get a copy of the data field
+    <return type = "zchunk" />
+</method>
+<method name = "get data">
+    Get the data field and transfer ownership to caller
+    <return type = "zchunk" />
+</method>
+    Set the data field, transferring ownership from caller
+<method name = "set data">
+    <argument name = "data_p" type = "zchunk" by_reference = "1" />
+</method>
+<method name = "offset">
+    Get the offset field
+    <return type = "number" size = "8" />
+</method>
+<method name = "set offset">
+    Set the offset field
+    <argument name = "offset" type = "number" size = "8" />
+</method>
+<method name = "chunksize">
+    Get the chunksize field
+    <return type = "number" size = "8" />
+</method>
+<method name = "set chunksize">
+    Set the chunksize field
+    <argument name = "chunksize" type = "number" size = "8" />
+</method>
+<method name = "chunkchecksum">
+    Get the chunkchecksum field
+    <return type = "number" size = "8" />
+</method>
+<method name = "set chunkchecksum">
+    Set the chunkchecksum field
+    <argument name = "chunkchecksum" type = "number" size = "8" />
+</method>
+<method name = "filename">
+    Get the filename field
+    <return type = "string" />
+</method>
+<method name = "set filename">
+    Set the filename field
+    <argument name = "filename" type = "string" />
+</method>
+<method name = "filesize">
+    Get the filesize field
+    <return type = "number" size = "8" />
+</method>
+<method name = "set filesize">
+    Set the filesize field
+    <argument name = "filesize" type = "number" size = "8" />
+</method>
+<method name = "filechecksum">
+    Get the filechecksum field
+    <return type = "number" size = "8" />
+</method>
+<method name = "set filechecksum">
+    Set the filechecksum field
+    <argument name = "filechecksum" type = "number" size = "8" />
+</method>
+</class>

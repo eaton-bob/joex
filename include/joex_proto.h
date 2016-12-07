@@ -16,8 +16,6 @@ Set the data field, transferring ownership from caller
 #ifndef JOEX_PROTO_H_INCLUDED
 #define JOEX_PROTO_H_INCLUDED
 
-#include <joex.h>
-
 #ifdef __cplusplus
 extern "C" {
 #endif
