@@ -83,7 +83,6 @@ src:
 
 # Produce generated code from models in the src directory
 code:
-	cd $(srcdir)/src; gsl -topdir:.. -zproject:1 -q joex_server.xml
 	cd $(srcdir)/src; gsl -topdir:.. -zproject:1 -q joex_proto.xml
 	cd $(srcdir); gsl -target:- project.xml
 
