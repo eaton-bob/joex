@@ -33,6 +33,7 @@ typedef struct {
     client_args_t *args;        //  Arguments from methods
 
     //  TODO: Add specific properties for your application
+    char *name;
 } client_t;
 
 //  Include the generated client engine
@@ -53,6 +54,7 @@ static void
 client_terminate (client_t *self)
 {
     //  Destroy properties here
+    zstr_free (&self->name);
 }
 
 
@@ -66,11 +68,20 @@ joex_client_test (bool verbose)
     if (verbose)
         printf ("\n");
 
+    const char *endpoint = "inproc://joex_client_test";
+    zactor_t *server = zactor_new (joex_server, "JOEX-SERVER");
+    zstr_sendx (server, "VERBOSE", NULL);
+    zstr_sendx (server, "BIND", endpoint, NULL);
+
     //  @selftest
     // TODO: fill this out
     joex_client_t *client = joex_client_new ();
     joex_client_set_verbose(client, verbose);
+
+    joex_client_connect (client, endpoint, 1000, "JOEX-CLIENT");
+
     joex_client_destroy (&client);
+    zactor_destroy (&server);
     //  @end
     printf ("OK\n");
 }
@@ -83,6 +94,9 @@ joex_client_test (bool verbose)
 static void
 remember_client_address (client_t *self)
 {
+    free(self->name);
+    self->name = strdup (self->args->address);
+    zsys_info ("My name is '%s'", self->name);
 }
 
 
@@ -93,6 +107,10 @@ remember_client_address (client_t *self)
 static void
 connect_to_server_endpoint (client_t *self)
 {
+    if (zsock_connect (self->dealer, "%s", self->args->endpoint)) {
+        //engine_set_exception (self, bad_endpoint_event);
+        zsys_warning ("could not connect to %s", self->args->endpoint);
+    }
 }
 
 
@@ -103,6 +121,7 @@ connect_to_server_endpoint (client_t *self)
 static void
 set_client_address (client_t *self)
 {
+    joex_proto_set_name (self->message, self->name);
 }
 
 

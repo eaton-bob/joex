@@ -40,7 +40,7 @@
         <field name = "endpoint" type = "string">Endpoint to connect to</field>
         <field name = "timeout" type = "number" size = "4">Timeout in msecs</field>
         <field name = "address" type = "string">Unique address of caller, if any</field>
-        <accept reply = "SUCCESS" />
+        <accept reply = "OK" />
         <accept reply = "ERROR" />
     </method>
     

@@ -724,7 +724,7 @@ joex_client_connect (joex_client_t *self, const char *endpoint, uint32_t timeout
     assert (self);
 
     zsock_send (self->actor, "ss4s", "CONNECT", endpoint, timeout, address);
-    if (s_accept_reply (self, "SUCCESS", "ERROR", NULL))
+    if (s_accept_reply (self, "OK", "ERROR", NULL))
         return -1;              //  Interrupted or timed-out
     return self->status;
 }
