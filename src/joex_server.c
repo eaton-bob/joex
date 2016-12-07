@@ -40,11 +40,7 @@ struct _server_t {
     zconfig_t *config;          //  Current loaded configuration
 
     //  TODO: Add any properties you need here
-<<<<<<< HEAD
-    zhash_t* clients;
-=======
     zhashx_t *clients;          // name -> client_t*
->>>>>>> 1ab40191aec3da1b4a0754c417185c7a3b0895b9
 };
 
 //  ---------------------------------------------------------------------------
@@ -107,6 +103,7 @@ static int
 client_initialize (client_t *self)
 {
     //  Construct properties here
+    self->name = strdup (joex_proto_name (self->message));
     return 0;
 }
 
@@ -186,15 +183,6 @@ joex_server_test (bool verbose)
 static void
 register_new_client (client_t *self)
 {
-  client_t* other_ = (client_t*) zhash_lookup(
-      self -> server -> clients, joex_proto_name(self -> message));
-  if(other_ != NULL) {
-    engine_set_exception(self, exception_event);
-  }
-  else {
-    zhash_insert(self -> server -> clients, joex_proto_name(self -> message), (void*) self);
-    self->name = strdup (joex_proto_name (self->message));
-
     if (zhashx_lookup (self->server->clients, self->name)) {
         engine_set_exception (self, exception_event);
         zsys_debug ("engine_set_exception");
