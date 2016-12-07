@@ -1,0 +1,276 @@
+#### joex_proto - joe example protocol
+
+joex_proto - joe example protocol
+
+Please add @discuss section in ../src/joex_proto.c.
+
+This is the class interface:
+
+```h
+    //  Create a new empty joex_proto
+    joex_proto_t *
+        joex_proto_new (void);
+
+    //  Destroy a joex_proto instance
+    void
+        joex_proto_destroy (joex_proto_t **self_p);
+
+    //  Receive a joex_proto from the socket. Returns 0 if OK, -1 if
+    //  the read was interrupted, or -2 if the message is malformed.
+    //  Blocks if there is no message waiting.
+    int
+        joex_proto_recv (joex_proto_t *self, zsock_t *input);
+
+    //  Send the joex_proto to the output socket, does not destroy it
+    int
+        joex_proto_send (joex_proto_t *self, zsock_t *output);
+
+
+    //  Print contents of message to stdout
+    void
+        joex_proto_print (joex_proto_t *self);
+
+    //  Get/set the message routing id
+    zframe_t *
+        joex_proto_routing_id (joex_proto_t *self);
+    void
+        joex_proto_set_routing_id (joex_proto_t *self, zframe_t *routing_id);
+
+    //  Get the joex_proto id and printable command
+    int
+        joex_proto_id (joex_proto_t *self);
+    void
+        joex_proto_set_id (joex_proto_t *self, int id);
+    const char *
+        joex_proto_command (joex_proto_t *self);
+
+    //  Get/set the name field
+    const char *
+        joex_proto_name (joex_proto_t *self);
+    void
+        joex_proto_set_name (joex_proto_t *self, const char *value);
+
+    //  Get a copy of the header field
+    zhash_t *
+        joex_proto_header (joex_proto_t *self);
+    //  Get the header field and transfer ownership to caller
+    zhash_t *
+        joex_proto_get_header (joex_proto_t *self);
+    //  Set the header field, transferring ownership from caller
+    void
+        joex_proto_set_header (joex_proto_t *self, zhash_t **hash_p);
+
+    //  Get/set the reason field
+    const char *
+        joex_proto_reason (joex_proto_t *self);
+    void
+        joex_proto_set_reason (joex_proto_t *self, const char *value);
+
+    //  Get/set the code field
+    uint64_t
+        joex_proto_code (joex_proto_t *self);
+    void
+        joex_proto_set_code (joex_proto_t *self, uint64_t code);
+
+    //  Get a copy of the data field
+    zchunk_t *
+        joex_proto_data (joex_proto_t *self);
+    //  Get the data field and transfer ownership to caller
+    zchunk_t *
+        joex_proto_get_data (joex_proto_t *self);
+    //  Set the data field, transferring ownership from caller
+    void
+        joex_proto_set_data (joex_proto_t *self, zchunk_t **chunk_p);
+
+    //  Get/set the offset field
+    uint64_t
+        joex_proto_offset (joex_proto_t *self);
+    void
+        joex_proto_set_offset (joex_proto_t *self, uint64_t offset);
+
+    //  Get/set the chunksize field
+    uint64_t
+        joex_proto_chunksize (joex_proto_t *self);
+    void
+        joex_proto_set_chunksize (joex_proto_t *self, uint64_t chunksize);
+
+    //  Get/set the chunkchecksum field
+    uint64_t
+        joex_proto_chunkchecksum (joex_proto_t *self);
+    void
+        joex_proto_set_chunkchecksum (joex_proto_t *self, uint64_t chunkchecksum);
+
+    //  Get/set the filename field
+    const char *
+        joex_proto_filename (joex_proto_t *self);
+    void
+        joex_proto_set_filename (joex_proto_t *self, const char *value);
+
+    //  Get/set the filesize field
+    uint64_t
+        joex_proto_filesize (joex_proto_t *self);
+    void
+        joex_proto_set_filesize (joex_proto_t *self, uint64_t filesize);
+
+    //  Get/set the filechecksum field
+    uint64_t
+        joex_proto_filechecksum (joex_proto_t *self);
+    void
+        joex_proto_set_filechecksum (joex_proto_t *self, uint64_t filechecksum);
+
+    //  Self test of this class
+    void
+        joex_proto_test (bool verbose);
+```
+
+This is the class self test code:
+
+```c
+    //  Simple create/destroy test
+    joex_proto_t *self = joex_proto_new ();
+    assert (self);
+    joex_proto_destroy (&self);
+    //  Create pair of sockets we can send through
+    //  We must bind before connect if we wish to remain compatible with ZeroMQ < v4
+    zsock_t *output = zsock_new (ZMQ_DEALER);
+    assert (output);
+    int rc = zsock_bind (output, "inproc://selftest-joex_proto");
+    assert (rc == 0);
+
+    zsock_t *input = zsock_new (ZMQ_ROUTER);
+    assert (input);
+    rc = zsock_connect (input, "inproc://selftest-joex_proto");
+    assert (rc == 0);
+
+
+    //  Encode/send/decode and verify each message type
+    int instance;
+    self = joex_proto_new ();
+    joex_proto_set_id (self, JOEX_PROTO_HELLO);
+
+    joex_proto_set_name (self, "Life is short but Now lasts for ever");
+    zhash_t *hello_header = zhash_new ();
+    zhash_insert (hello_header, "Name", "Brutus");
+    joex_proto_set_header (self, &hello_header);
+    //  Send twice
+    joex_proto_send (self, output);
+    joex_proto_send (self, output);
+
+    for (instance = 0; instance < 2; instance++) {
+        joex_proto_recv (self, input);
+        assert (joex_proto_routing_id (self));
+        assert (streq (joex_proto_name (self), "Life is short but Now lasts for ever"));
+        zhash_t *header = joex_proto_get_header (self);
+        assert (zhash_size (header) == 1);
+        assert (streq ((char *) zhash_first (header), "Brutus"));
+        assert (streq ((char *) zhash_cursor (header), "Name"));
+        zhash_destroy (&header);
+        if (instance == 1)
+            zhash_destroy (&hello_header);
+    }
+    joex_proto_set_id (self, JOEX_PROTO_PING);
+
+    //  Send twice
+    joex_proto_send (self, output);
+    joex_proto_send (self, output);
+
+    for (instance = 0; instance < 2; instance++) {
+        joex_proto_recv (self, input);
+        assert (joex_proto_routing_id (self));
+    }
+    joex_proto_set_id (self, JOEX_PROTO_PONG);
+
+    //  Send twice
+    joex_proto_send (self, output);
+    joex_proto_send (self, output);
+
+    for (instance = 0; instance < 2; instance++) {
+        joex_proto_recv (self, input);
+        assert (joex_proto_routing_id (self));
+    }
+    joex_proto_set_id (self, JOEX_PROTO_OK);
+
+    //  Send twice
+    joex_proto_send (self, output);
+    joex_proto_send (self, output);
+
+    for (instance = 0; instance < 2; instance++) {
+        joex_proto_recv (self, input);
+        assert (joex_proto_routing_id (self));
+    }
+    joex_proto_set_id (self, JOEX_PROTO_CLOSE);
+
+    //  Send twice
+    joex_proto_send (self, output);
+    joex_proto_send (self, output);
+
+    for (instance = 0; instance < 2; instance++) {
+        joex_proto_recv (self, input);
+        assert (joex_proto_routing_id (self));
+    }
+    joex_proto_set_id (self, JOEX_PROTO_ERROR);
+
+    joex_proto_set_reason (self, "Life is short but Now lasts for ever");
+    joex_proto_set_code (self, 123);
+    //  Send twice
+    joex_proto_send (self, output);
+    joex_proto_send (self, output);
+
+    for (instance = 0; instance < 2; instance++) {
+        joex_proto_recv (self, input);
+        assert (joex_proto_routing_id (self));
+        assert (streq (joex_proto_reason (self), "Life is short but Now lasts for ever"));
+        assert (joex_proto_code (self) == 123);
+    }
+    joex_proto_set_id (self, JOEX_PROTO_CHUNK);
+
+    zchunk_t *chunk_data = zchunk_new ("Captcha Diem", 12);
+    joex_proto_set_data (self, &chunk_data);
+    joex_proto_set_offset (self, 123);
+    joex_proto_set_chunksize (self, 123);
+    joex_proto_set_chunkchecksum (self, 123);
+    //  Send twice
+    joex_proto_send (self, output);
+    joex_proto_send (self, output);
+
+    for (instance = 0; instance < 2; instance++) {
+        joex_proto_recv (self, input);
+        assert (joex_proto_routing_id (self));
+        assert (memcmp (zchunk_data (joex_proto_data (self)), "Captcha Diem", 12) == 0);
+        if (instance == 1)
+            zchunk_destroy (&chunk_data);
+        assert (joex_proto_offset (self) == 123);
+        assert (joex_proto_chunksize (self) == 123);
+        assert (joex_proto_chunkchecksum (self) == 123);
+    }
+    joex_proto_set_id (self, JOEX_PROTO_UPLOAD);
+
+    joex_proto_set_filename (self, "Life is short but Now lasts for ever");
+    joex_proto_set_filesize (self, 123);
+    joex_proto_set_filechecksum (self, 123);
+    //  Send twice
+    joex_proto_send (self, output);
+    joex_proto_send (self, output);
+
+    for (instance = 0; instance < 2; instance++) {
+        joex_proto_recv (self, input);
+        assert (joex_proto_routing_id (self));
+        assert (streq (joex_proto_filename (self), "Life is short but Now lasts for ever"));
+        assert (joex_proto_filesize (self) == 123);
+        assert (joex_proto_filechecksum (self) == 123);
+    }
+    joex_proto_set_id (self, JOEX_PROTO_UPLOAD_FINISHED);
+
+    //  Send twice
+    joex_proto_send (self, output);
+    joex_proto_send (self, output);
+
+    for (instance = 0; instance < 2; instance++) {
+        joex_proto_recv (self, input);
+        assert (joex_proto_routing_id (self));
+    }
+
+    joex_proto_destroy (&self);
+    zsock_destroy (&input);
+    zsock_destroy (&output);
+```

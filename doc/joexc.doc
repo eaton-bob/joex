@@ -1,0 +1,13 @@
+#### joexc - Joe client
+
+joexc - Joe client
+
+Please add @discuss section in ../src/joexc.c.
+
+This is the class interface:
+
+Please add @interface section in ../src/joexc.c.
+
+This is the class self test code:
+
+Please add @selftest section in ../src/joexc.c.
