@@ -1,0 +1,40 @@
+<class
+    name = "joe_proto"
+    signature = "0"
+    title = "joe example protocol"
+    script = "zproto_codec_c"
+    package_dir = "../include"
+    source_dir = "."
+    >
+
+    <message name = "HELLO" type = "string">
+        <field name = "name" type = "string" />
+        <field name = "header" type = "hash" />
+    </message>
+    
+    <message name = "PING" type = "string"></message>
+    <message name = "PONG" type = "string"></message>
+    <message name = "OK" type = "string"></message>
+    <message name = "CLOSE" type = "string"></message>
+    
+    <message name = "ERROR" type = "string">
+        <field name = "reason" type = "string" />
+        <field name = "code" type = "number" size="8"/>
+    </message>
+
+    <message name = "CHUNK" type = "string">
+        <field name = "data" type = "chunk" />
+        <field name = "offset" type = "number" size="8"/>
+        <field name = "chunksize" type = "number" size="8"/>
+        <field name = "chunkchecksum" type = "number" size="8" />
+	</message>
+    
+    <message name = "UPLOAD" type = "string">
+        <field name = "filename" type = "string"/>
+        <field name = "filesize" type = "number" size="8" />
+        <field name = "filechecksum" type = "number" size="8" />
+    </message>
+
+    <message name = "UPLOAD_FINISHED" type = "string"></message>
+
+</class>
