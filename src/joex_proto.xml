@@ -29,10 +29,7 @@
     
     <message name = "UPLOAD_FINISHED" type = "string" />
 
-    <message name = "CLOSE" type = "string">
-        <field name = "filename" type = "string" />
-        <field name = "size" type = "number" size="8"/>
-    </message>
+    <message name = "CLOSE" type = "string"/>
 
     <message name = "OK" />
     
