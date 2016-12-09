@@ -84,6 +84,6 @@ time ctest -V
 time make install
 echo "`date`: Builds completed without fatal errors!"
 
-echo "=== Are GitIgnores good after making zproject '$BUILD_TYPE'? (should have no output below)"
+echo "=== Are GitIgnores good after making the project '$BUILD_TYPE'? (should have no output below)"
 git status -s || true
 echo "==="

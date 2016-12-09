@@ -23,60 +23,63 @@ CONFIG_OPTS+=("--with-docs=no")
 CONFIG_OPTS+=("--quiet")
 
 # Clone and build dependencies
-git clone --quiet --depth 1 https://github.com/zeromq/libzmq.git libzmq.git
+echo "`date`: Starting build of dependencies (if any)..."
+time git clone --quiet --depth 1 https://github.com/zeromq/libzmq.git libzmq.git
 cd libzmq.git
 git --no-pager log --oneline -n1
 if [ -e autogen.sh ]; then
-    ./autogen.sh 2> /dev/null
+    time ./autogen.sh 2> /dev/null
 fi
 if [ -e buildconf ]; then
-    ./buildconf 2> /dev/null
+    time ./buildconf 2> /dev/null
 fi
-./configure "${CONFIG_OPTS[@]}"
-make -j4
-make install
+time ./configure "${CONFIG_OPTS[@]}"
+time make -j4
+time make install
 cd ..
-git clone --quiet --depth 1 https://github.com/zeromq/czmq.git czmq.git
+time git clone --quiet --depth 1 https://github.com/zeromq/czmq.git czmq.git
 cd czmq.git
 git --no-pager log --oneline -n1
 if [ -e autogen.sh ]; then
-    ./autogen.sh 2> /dev/null
+    time ./autogen.sh 2> /dev/null
 fi
 if [ -e buildconf ]; then
-    ./buildconf 2> /dev/null
+    time ./buildconf 2> /dev/null
 fi
-./configure "${CONFIG_OPTS[@]}"
-make -j4
-make install
+time ./configure "${CONFIG_OPTS[@]}"
+time make -j4
+time make install
 cd ..
-git clone --quiet --depth 1 https://github.com/zeromq/malamute.git malamute.git
+time git clone --quiet --depth 1 https://github.com/zeromq/malamute.git malamute.git
 cd malamute.git
 git --no-pager log --oneline -n1
 if [ -e autogen.sh ]; then
-    ./autogen.sh 2> /dev/null
+    time ./autogen.sh 2> /dev/null
 fi
 if [ -e buildconf ]; then
-    ./buildconf 2> /dev/null
+    time ./buildconf 2> /dev/null
 fi
-./configure "${CONFIG_OPTS[@]}"
-make -j4
-make install
+time ./configure "${CONFIG_OPTS[@]}"
+time make -j4
+time make install
 cd ..
-git clone --quiet --depth 1 https://github.com/zeromq/zyre.git zyre.git
+time git clone --quiet --depth 1 https://github.com/zeromq/zyre.git zyre.git
 cd zyre.git
 git --no-pager log --oneline -n1
 if [ -e autogen.sh ]; then
-    ./autogen.sh 2> /dev/null
+    time ./autogen.sh 2> /dev/null
 fi
 if [ -e buildconf ]; then
-    ./buildconf 2> /dev/null
+    time ./buildconf 2> /dev/null
 fi
-./configure "${CONFIG_OPTS[@]}"
-make -j4
-make install
+time ./configure "${CONFIG_OPTS[@]}"
+time make -j4
+time make install
 cd ..
 
 # Build and check this project
-./autogen.sh 2> /dev/null
-./configure --enable-drafts=yes "${CONFIG_OPTS[@]}"
-make VERBOSE=1 memcheck || exit 1
+echo "`date`: Starting build of currently tested project..."
+time ./autogen.sh 2> /dev/null
+time ./configure --enable-drafts=yes "${CONFIG_OPTS[@]}"
+time make VERBOSE=1 memcheck || exit 1
+echo "`date`: Builds completed without fatal errors!"
