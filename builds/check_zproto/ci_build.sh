@@ -1,6 +1,7 @@
 #!/usr/bin/env bash
 set -ex
 
+docker run -e GSL_BUILD_DIR=/code/src -v "$REPO_DIR":/code zeromqorg/zproto -zproject:1 -q joex_client.xml
 docker run -e GSL_BUILD_DIR=/code/src -v "$REPO_DIR":/code zeromqorg/zproto -zproject:1 -q joex_server.xml
 docker run -e GSL_BUILD_DIR=/code/src -v "$REPO_DIR":/code zeromqorg/zproto -zproject:1 -q joex_proto.xml
 

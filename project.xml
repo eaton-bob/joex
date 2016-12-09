@@ -15,8 +15,10 @@
     <use project = "malamute" />
     <use project = "zyre" />
 
+    <class name = "joex_client" state = "stable" />
     <class name = "joex_server" state = "stable" />
     <class name = "joex_proto" state = "stable" />
+    <model name = "joex_client" codec="zproto_client_c" />
     <model name = "joex_server" codec="zproto_server_c" />
     <model name = "joex_proto" codec="zproto_codec_c" />
 

@@ -1,0 +1,65 @@
+<class
+    name = "joex_client"
+    title = "JOEX Client"
+    script = "zproto_client_c"
+    protocol_class = "joex_proto"
+    package_dir = "../include"
+    project_header = "joex_classes.h"
+    export_macro = "JOEX_EXPORT"
+    >
+
+    <state name = "start">
+        <event name = "connect" next = "connecting">
+            <!-- This action should be called before "set client address" -->
+            <action name = "remember client address" />
+            <action name = "connect to server endpoint" />
+            <action name = "set client address" />
+            <action name = "use connect timeout" />
+            <action name = "send" message = "HELLO" />
+        </event>
+        <event name = "*">
+            <!-- Discard any other incoming events -->
+        </event>
+    </state>
+
+    <state name = "connecting">
+        <event name = "OK" next = "connected">
+            <action name = "client is connected" />
+            <action name = "signal success" />
+        </event>
+        <event name = "ERROR" next = "start">
+            <action name = "signal server not present" />
+        </event>
+    </state>
+
+    <state name = "connected">
+        <event name = "heartbeat">
+            <action name = "send" message = "PING" />
+        </event>
+        <event name = "PONG" next = "connected">
+            <action name = "client is connected" />
+        </event>
+    </state>
+
+    <!-- API -->
+    <method name = "connect" return = "status">
+    Connect to server endpoint, with specified timeout in msecs (zero means
+    wait forever). Constructor succeeds if connection is successful. The caller
+    may specify its address.
+        <field name = "endpoint" type = "string">Endpoint to connect to</field>
+        <field name = "timeout" type = "number" size = "4">Timeout in msecs</field>
+        <field name = "address" type = "string">Unique address of caller, if any</field>
+        <accept reply = "OK" />
+        <accept reply = "ERROR" />
+    </method>
+    
+    <reply name = "SUCCESS">
+        <field name = "status" type = "integer" />
+    </reply>
+
+    <reply name = "FAILURE">
+        <field name = "status" type = "integer" />
+        <field name = "reason" type = "string" />
+    </reply>
+    
+</class>
