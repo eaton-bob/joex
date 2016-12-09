@@ -23,7 +23,7 @@ CONFIG_OPTS+=("--with-docs=no")
 CONFIG_OPTS+=("--quiet")
 
 # Clone and build dependencies
-git clone --quiet --depth 1 https://github.com/zeromq/libzmq libzmq.git
+git clone --quiet --depth 1 https://github.com/zeromq/libzmq.git libzmq.git
 cd libzmq.git
 git --no-pager log --oneline -n1
 if [ -e autogen.sh ]; then
@@ -36,7 +36,7 @@ fi
 make -j4
 make install
 cd ..
-git clone --quiet --depth 1 https://github.com/zeromq/czmq czmq.git
+git clone --quiet --depth 1 https://github.com/zeromq/czmq.git czmq.git
 cd czmq.git
 git --no-pager log --oneline -n1
 if [ -e autogen.sh ]; then
@@ -49,7 +49,7 @@ fi
 make -j4
 make install
 cd ..
-git clone --quiet --depth 1 https://github.com/zeromq/malamute malamute.git
+git clone --quiet --depth 1 https://github.com/zeromq/malamute.git malamute.git
 cd malamute.git
 git --no-pager log --oneline -n1
 if [ -e autogen.sh ]; then
@@ -62,7 +62,7 @@ fi
 make -j4
 make install
 cd ..
-git clone --quiet --depth 1 https://github.com/zeromq/zyre zyre.git
+git clone --quiet --depth 1 https://github.com/zeromq/zyre.git zyre.git
 cd zyre.git
 git --no-pager log --oneline -n1
 if [ -e autogen.sh ]; then

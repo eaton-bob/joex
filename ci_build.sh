@@ -63,68 +63,66 @@ if [ "$BUILD_TYPE" == "default" ] || [ "$BUILD_TYPE" == "default-Werror" ] ; the
     CONFIG_OPTS+=("--with-docs=no")
     CONFIG_OPTS+=("--quiet")
 
-echo "`date`: starting build of dependencies"
-
     # Clone and build dependencies
-    git clone --quiet --depth 1 https://github.com/zeromq/libzmq libzmq.git
+    echo "`date`: Starting build of dependencies (if any)..."
+    time git clone --quiet --depth 1 https://github.com/zeromq/libzmq.git libzmq.git
     cd libzmq.git
     git --no-pager log --oneline -n1
     if [ -e autogen.sh ]; then
-        ./autogen.sh 2> /dev/null
+        time ./autogen.sh 2> /dev/null
     fi
     if [ -e buildconf ]; then
-        ./buildconf 2> /dev/null
+        time ./buildconf 2> /dev/null
     fi
     time ./configure "${CONFIG_OPTS[@]}"
     time make -j4
-    make install
+    time make install
     cd ..
-    git clone --quiet --depth 1 https://github.com/zeromq/czmq czmq.git
+    time git clone --quiet --depth 1 https://github.com/zeromq/czmq.git czmq.git
     cd czmq.git
     git --no-pager log --oneline -n1
     if [ -e autogen.sh ]; then
-        ./autogen.sh 2> /dev/null
+        time ./autogen.sh 2> /dev/null
     fi
     if [ -e buildconf ]; then
-        ./buildconf 2> /dev/null
+        time ./buildconf 2> /dev/null
     fi
     time ./configure "${CONFIG_OPTS[@]}"
     time make -j4
-    make install
+    time make install
     cd ..
-    git clone --quiet --depth 1 https://github.com/zeromq/malamute.git malamute.git
+    time git clone --quiet --depth 1 https://github.com/zeromq/malamute.git malamute.git
     cd malamute.git
     git --no-pager log --oneline -n1
     if [ -e autogen.sh ]; then
-        ./autogen.sh 2> /dev/null
+        time ./autogen.sh 2> /dev/null
     fi
     if [ -e buildconf ]; then
-        ./buildconf 2> /dev/null
+        time ./buildconf 2> /dev/null
     fi
     time ./configure "${CONFIG_OPTS[@]}"
     time make -j4
-    make install
+    time make install
     cd ..
-    git clone --quiet --depth 1 https://github.com/zeromq/zyre.git zyre.git
+    time git clone --quiet --depth 1 https://github.com/zeromq/zyre.git zyre.git
     cd zyre.git
     git --no-pager log --oneline -n1
     if [ -e autogen.sh ]; then
-        ./autogen.sh 2> /dev/null
+        time ./autogen.sh 2> /dev/null
     fi
     if [ -e buildconf ]; then
-        ./buildconf 2> /dev/null
+        time ./buildconf 2> /dev/null
     fi
     time ./configure "${CONFIG_OPTS[@]}"
     time make -j4
-    make install
+    time make install
     cd ..
 
-echo "`date`: starting build of project itself"
-
     # Build and check this project
-    ./autogen.sh 2> /dev/null
-    ./configure --enable-drafts=yes "${CONFIG_OPTS[@]}"
-    make VERBOSE=1 all
+    echo "`date`: Starting build of currently tested project with DRAFT APIs..."
+    time ./autogen.sh 2> /dev/null
+    time ./configure --enable-drafts=yes "${CONFIG_OPTS[@]}"
+    time make VERBOSE=1 all
 
     echo "=== Are GitIgnores good after 'make all' with drafts? (should have no output below)"
     git status -s || true
@@ -134,7 +132,7 @@ echo "`date`: starting build of project itself"
         echo "NOTE: Skipping distcheck for BUILD_TYPE='$BUILD_TYPE'" >&2
     else
         export DISTCHECK_CONFIGURE_FLAGS="--enable-drafts=yes ${CONFIG_OPTS[@]}"
-        make VERBOSE=1 DISTCHECK_CONFIGURE_FLAGS="$DISTCHECK_CONFIGURE_FLAGS" distcheck
+        time make VERBOSE=1 DISTCHECK_CONFIGURE_FLAGS="$DISTCHECK_CONFIGURE_FLAGS" distcheck
 
         echo "=== Are GitIgnores good after 'make distcheck' with drafts? (should have no output below)"
         git status -s || true
@@ -142,20 +140,22 @@ echo "`date`: starting build of project itself"
     fi
 
     # Build and check this project without DRAFT APIs
+    echo "`date`: Starting build of currently tested project without DRAFT APIs..."
     make distclean
     git clean -f
     git reset --hard HEAD
     (
-        ./autogen.sh 2> /dev/null
-        ./configure --enable-drafts=no "${CONFIG_OPTS[@]}" --with-docs=yes
-        make VERBOSE=1 all || exit $?
+        time ./autogen.sh 2> /dev/null
+        time ./configure --enable-drafts=no "${CONFIG_OPTS[@]}" --with-docs=yes
+        time make VERBOSE=1 all || exit $?
         if [ "$BUILD_TYPE" == "default-Werror" ] ; then
             echo "NOTE: Skipping distcheck for BUILD_TYPE='$BUILD_TYPE'" >&2
         else
             export DISTCHECK_CONFIGURE_FLAGS="--enable-drafts=no ${CONFIG_OPTS[@]} --with-docs=yes" && \
-            make VERBOSE=1 DISTCHECK_CONFIGURE_FLAGS="$DISTCHECK_CONFIGURE_FLAGS" distcheck || exit $?
+            time make VERBOSE=1 DISTCHECK_CONFIGURE_FLAGS="$DISTCHECK_CONFIGURE_FLAGS" distcheck || exit $?
         fi
     ) || exit 1
+    echo "`date`: Builds completed without fatal errors!"
 
     echo "=== Are GitIgnores good after 'make distcheck' without drafts? (should have no output below)"
     git status -s || true

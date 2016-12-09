@@ -2,10 +2,10 @@
 set -ex
 
 cd $REPO_DIR/..
-git clone --quiet --depth 1 https://github.com/zeromq/libzmq libzmq.git
-git clone --quiet --depth 1 https://github.com/zeromq/czmq czmq.git
-git clone --quiet --depth 1 https://github.com/zeromq/malamute malamute.git
-git clone --quiet --depth 1 https://github.com/zeromq/zyre zyre.git
+git clone --quiet --depth 1 https://github.com/zeromq/libzmq.git libzmq.git
+git clone --quiet --depth 1 https://github.com/zeromq/czmq.git czmq.git
+git clone --quiet --depth 1 https://github.com/zeromq/malamute.git malamute.git
+git clone --quiet --depth 1 https://github.com/zeromq/zyre.git zyre.git
 cd -
 
 cd $REPO_DIR/..
