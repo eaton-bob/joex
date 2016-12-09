@@ -12,6 +12,8 @@
     <include filename = "license.xml" />
     <version major = "0" minor = "1" patch = "0" />
     <use project = "czmq" />
+    <use project = "malamute" />
+    <use project = "zyre" />
 
     <class name = "joex_client" state = "stable" />
     <class name = "joex_server" state = "stable" />

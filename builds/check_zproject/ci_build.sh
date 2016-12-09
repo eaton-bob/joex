@@ -4,6 +4,8 @@ set -ex
 cd $REPO_DIR/..
 git clone --quiet --depth 1 https://github.com/zeromq/libzmq libzmq.git
 git clone --quiet --depth 1 https://github.com/zeromq/czmq czmq.git
+git clone --quiet --depth 1 https://github.com/zeromq/malamute malamute.git
+git clone --quiet --depth 1 https://github.com/zeromq/zyre zyre.git
 cd -
 
 cd $REPO_DIR/..
@@ -36,4 +38,5 @@ export PATH=$PATH:`pwd`
         echo "zproject generated new files!"
         exit 1
     fi
+    exit 0
 }

@@ -49,6 +49,32 @@ fi
 make -j4
 make install
 cd ..
+git clone --quiet --depth 1 https://github.com/zeromq/malamute malamute.git
+cd malamute.git
+git --no-pager log --oneline -n1
+if [ -e autogen.sh ]; then
+    ./autogen.sh 2> /dev/null
+fi
+if [ -e buildconf ]; then
+    ./buildconf 2> /dev/null
+fi
+./configure "${CONFIG_OPTS[@]}"
+make -j4
+make install
+cd ..
+git clone --quiet --depth 1 https://github.com/zeromq/zyre zyre.git
+cd zyre.git
+git --no-pager log --oneline -n1
+if [ -e autogen.sh ]; then
+    ./autogen.sh 2> /dev/null
+fi
+if [ -e buildconf ]; then
+    ./buildconf 2> /dev/null
+fi
+./configure "${CONFIG_OPTS[@]}"
+make -j4
+make install
+cd ..
 
 # Build and check this project
 ./autogen.sh 2> /dev/null
