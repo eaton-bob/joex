@@ -63,6 +63,8 @@ if [ "$BUILD_TYPE" == "default" ] || [ "$BUILD_TYPE" == "default-Werror" ] ; the
     CONFIG_OPTS+=("--with-docs=no")
     CONFIG_OPTS+=("--quiet")
 
+echo "`date`: starting build of dependencies"
+
     # Clone and build dependencies
     git clone --quiet --depth 1 https://github.com/zeromq/libzmq libzmq.git
     cd libzmq.git
@@ -73,8 +75,8 @@ if [ "$BUILD_TYPE" == "default" ] || [ "$BUILD_TYPE" == "default-Werror" ] ; the
     if [ -e buildconf ]; then
         ./buildconf 2> /dev/null
     fi
-    ./configure "${CONFIG_OPTS[@]}"
-    make -j4
+    time ./configure "${CONFIG_OPTS[@]}"
+    time make -j4
     make install
     cd ..
     git clone --quiet --depth 1 https://github.com/zeromq/czmq czmq.git
@@ -86,10 +88,38 @@ if [ "$BUILD_TYPE" == "default" ] || [ "$BUILD_TYPE" == "default-Werror" ] ; the
     if [ -e buildconf ]; then
         ./buildconf 2> /dev/null
     fi
-    ./configure "${CONFIG_OPTS[@]}"
-    make -j4
+    time ./configure "${CONFIG_OPTS[@]}"
+    time make -j4
     make install
     cd ..
+    git clone --quiet --depth 1 https://github.com/zeromq/malamute.git malamute.git
+    cd malamute.git
+    git --no-pager log --oneline -n1
+    if [ -e autogen.sh ]; then
+        ./autogen.sh 2> /dev/null
+    fi
+    if [ -e buildconf ]; then
+        ./buildconf 2> /dev/null
+    fi
+    time ./configure "${CONFIG_OPTS[@]}"
+    time make -j4
+    make install
+    cd ..
+    git clone --quiet --depth 1 https://github.com/zeromq/zyre.git zyre.git
+    cd zyre.git
+    git --no-pager log --oneline -n1
+    if [ -e autogen.sh ]; then
+        ./autogen.sh 2> /dev/null
+    fi
+    if [ -e buildconf ]; then
+        ./buildconf 2> /dev/null
+    fi
+    time ./configure "${CONFIG_OPTS[@]}"
+    time make -j4
+    make install
+    cd ..
+
+echo "`date`: starting build of project itself"
 
     # Build and check this project
     ./autogen.sh 2> /dev/null
