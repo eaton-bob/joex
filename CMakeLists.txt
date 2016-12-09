@@ -115,6 +115,30 @@ ELSE (CZMQ_FOUND)
 ENDIF (CZMQ_FOUND)
 
 ########################################################################
+# MALAMUTE dependency
+########################################################################
+find_package(malamute REQUIRED)
+IF (MALAMUTE_FOUND)
+    include_directories(${MALAMUTE_INCLUDE_DIRS})
+    list(APPEND MORE_LIBRARIES ${MALAMUTE_LIBRARIES})
+    set(pkg_config_libs_private "${pkg_config_libs_private} -lmlm")
+ELSE (MALAMUTE_FOUND)
+    message( FATAL_ERROR "malamute not found." )
+ENDIF (MALAMUTE_FOUND)
+
+########################################################################
+# ZYRE dependency
+########################################################################
+find_package(zyre REQUIRED)
+IF (ZYRE_FOUND)
+    include_directories(${ZYRE_INCLUDE_DIRS})
+    list(APPEND MORE_LIBRARIES ${ZYRE_LIBRARIES})
+    set(pkg_config_libs_private "${pkg_config_libs_private} -lzyre")
+ELSE (ZYRE_FOUND)
+    message( FATAL_ERROR "zyre not found." )
+ENDIF (ZYRE_FOUND)
+
+########################################################################
 # includes
 ########################################################################
 set (joex_headers
@@ -193,6 +217,8 @@ target_link_libraries(
     joex
     ${LIBZMQ_LIBRARIES}
     ${CZMQ_LIBRARIES}
+    ${MALAMUTE_LIBRARIES}
+    ${ZYRE_LIBRARIES}
     ${OPTIONAL_LIBRARIES}
 )
 set_target_properties(
@@ -208,6 +234,8 @@ target_link_libraries(
     joex
     ${LIBZMQ_LIBRARIES}
     ${CZMQ_LIBRARIES}
+    ${MALAMUTE_LIBRARIES}
+    ${ZYRE_LIBRARIES}
     ${OPTIONAL_LIBRARIES}
 )
 set_target_properties(
@@ -223,6 +251,8 @@ target_link_libraries(
     joex
     ${LIBZMQ_LIBRARIES}
     ${CZMQ_LIBRARIES}
+    ${MALAMUTE_LIBRARIES}
+    ${ZYRE_LIBRARIES}
     ${OPTIONAL_LIBRARIES}
 )
 set_target_properties(

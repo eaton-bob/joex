@@ -9,6 +9,8 @@
 *.7
 
 # Ignore the source doc texts generated from program sources
+joex_client.txt
+joex_client.doc
 joex_server.txt
 joex_server.doc
 joex_proto.txt

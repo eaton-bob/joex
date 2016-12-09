@@ -21,7 +21,9 @@ include_HEADERS = \
 
 src_libjoex_la_SOURCES = \
     src/joex_client.c \
+    src/joex_client_engine.inc \
     src/joex_server.c \
+    src/joex_server_engine.inc \
     src/joex_proto.c \
     src/platform.h
 
@@ -79,6 +81,7 @@ endif #ENABLE_JOEX_SELFTEST
 # Install api files into /usr/local/share/zproject
 apidir = @datadir@/zproject/joex
 dist_api_DATA = \
+    api/joex_client.api \
     api/joex_proto.api
 
 # define custom target for all products of /src

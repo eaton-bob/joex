@@ -169,6 +169,100 @@ if test "x$was_czmq_check_lib_detected" = "xno"; then
     LIBS="${czmq_LIBS} ${LIBS}"
 fi
 
+was_malamute_check_lib_detected=no
+
+PKG_CHECK_MODULES([malamute], [libmlm >= 0.0.0],
+    [
+        PKGCFG_LIBS_PRIVATE="$PKGCFG_LIBS_PRIVATE $malamute_LIBS"
+    ],
+    [
+        AC_ARG_WITH([libmlm],
+            [
+                AS_HELP_STRING([--with-libmlm],
+                [Specify libmlm prefix])
+            ],
+            [search_libmlm="yes"],
+            [])
+
+        malamute_synthetic_cflags=""
+        malamute_synthetic_libs="-lmlm"
+
+        if test "x$search_libmlm" = "xyes"; then
+            if test -r "${with_libmlm}/include/malamute.h"; then
+                malamute_synthetic_cflags="-I${with_libmlm}/include"
+                malamute_synthetic_libs="-L${with_libmlm}/lib -lmlm"
+            else
+                AC_MSG_ERROR([${with_libmlm}/include/malamute.h not found. Please check libmlm prefix])
+            fi
+        fi
+
+
+        AC_CHECK_LIB([mlm], [mlm_server_test],
+            [
+                CFLAGS="${malamute_synthetic_cflags} ${CFLAGS}"
+                LDFLAGS="${malamute_synthetic_libs} ${LDFLAGS}"
+                LIBS="${malamute_synthetic_libs} ${LIBS}"
+
+                AC_SUBST([malamute_CFLAGS],[${malamute_synthetic_cflags}])
+                AC_SUBST([malamute_LIBS],[${malamute_synthetic_libs}])
+                was_malamute_check_lib_detected=yes
+                PKGCFG_LIBS_PRIVATE="$PKGCFG_LIBS_PRIVATE -lmlm"
+            ],
+            [AC_MSG_ERROR([cannot link with -lmlm, install libmlm])])
+    ])
+
+if test "x$was_malamute_check_lib_detected" = "xno"; then
+    CFLAGS="${malamute_CFLAGS} ${CFLAGS}"
+    LIBS="${malamute_LIBS} ${LIBS}"
+fi
+
+was_zyre_check_lib_detected=no
+
+PKG_CHECK_MODULES([zyre], [libzyre >= 0.0.0],
+    [
+        PKGCFG_LIBS_PRIVATE="$PKGCFG_LIBS_PRIVATE $zyre_LIBS"
+    ],
+    [
+        AC_ARG_WITH([libzyre],
+            [
+                AS_HELP_STRING([--with-libzyre],
+                [Specify libzyre prefix])
+            ],
+            [search_libzyre="yes"],
+            [])
+
+        zyre_synthetic_cflags=""
+        zyre_synthetic_libs="-lzyre"
+
+        if test "x$search_libzyre" = "xyes"; then
+            if test -r "${with_libzyre}/include/zyre.h"; then
+                zyre_synthetic_cflags="-I${with_libzyre}/include"
+                zyre_synthetic_libs="-L${with_libzyre}/lib -lzyre"
+            else
+                AC_MSG_ERROR([${with_libzyre}/include/zyre.h not found. Please check libzyre prefix])
+            fi
+        fi
+
+
+        AC_CHECK_LIB([zyre], [zyre_test],
+            [
+                CFLAGS="${zyre_synthetic_cflags} ${CFLAGS}"
+                LDFLAGS="${zyre_synthetic_libs} ${LDFLAGS}"
+                LIBS="${zyre_synthetic_libs} ${LIBS}"
+
+                AC_SUBST([zyre_CFLAGS],[${zyre_synthetic_cflags}])
+                AC_SUBST([zyre_LIBS],[${zyre_synthetic_libs}])
+                was_zyre_check_lib_detected=yes
+                PKGCFG_LIBS_PRIVATE="$PKGCFG_LIBS_PRIVATE -lzyre"
+            ],
+            [AC_MSG_ERROR([cannot link with -lzyre, install libzyre])])
+    ])
+
+if test "x$was_zyre_check_lib_detected" = "xno"; then
+    CFLAGS="${zyre_CFLAGS} ${CFLAGS}"
+    LIBS="${zyre_LIBS} ${LIBS}"
+fi
+
 CFLAGS="${PREVIOUS_CFLAGS}"
 LIBS="${PREVIOUS_LIBS}"
 

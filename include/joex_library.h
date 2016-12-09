@@ -23,6 +23,8 @@
 
 //  External dependencies
 #include <czmq.h>
+#include <malamute.h>
+#include <zyre.h>
 
 //  JOEX version macros for compile-time API detection
 #define JOEX_VERSION_MAJOR 0

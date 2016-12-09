@@ -15,9 +15,11 @@ AM_CFLAGS = \
 AM_CPPFLAGS = \
     ${libzmq_CFLAGS} \
     ${czmq_CFLAGS} \
+    ${malamute_CFLAGS} \
+    ${zyre_CFLAGS} \
     -I$(srcdir)/include
 
-project_libs = ${libzmq_LIBS} ${czmq_LIBS}
+project_libs = ${libzmq_LIBS} ${czmq_LIBS} ${malamute_LIBS} ${zyre_LIBS}
 
 SUBDIRS = doc
 DIST_SUBDIRS = doc
@@ -32,6 +34,8 @@ EXTRA_DIST = \
     CMakeLists.txt \
     Findlibzmq.cmake \
     Findczmq.cmake \
+    Findmalamute.cmake \
+    Findzyre.cmake \
     LICENSE \
     README.md \
     src/joex_classes.h
