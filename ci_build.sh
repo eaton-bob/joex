@@ -15,6 +15,10 @@ if [ "$BUILD_TYPE" == "default" ] || [ "$BUILD_TYPE" == "default-Werror" ] ; the
     mkdir -p tmp
     BUILD_PREFIX=$PWD/tmp
 
+    CCACHE_PATH="$PATH"
+    which ccache || true
+    ls -la /usr/lib/ccache || true
+
     CONFIG_OPTS=()
     COMMON_CFLAGS=""
     EXTRA_CFLAGS=""
