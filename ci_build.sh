@@ -23,14 +23,20 @@ if [ "$BUILD_TYPE" == "default" ] || [ "$BUILD_TYPE" == "default-Werror" ] ; the
     if [ "$BUILD_TYPE" == "default-Werror" ] ; then
         COMPILER_FAMILY=""
         if [ -n "$CC" -a -n "$CXX" ]; then
-            if "$CC" --version 2>&1 | grep GCC > /dev/null &&   "$CXX" --version 2>&1 | grep GCC > /dev/null   ; then
+            if "$CC" --version 2>&1 | grep GCC > /dev/null && \
+               "$CXX" --version 2>&1 | grep GCC > /dev/null \
+            ; then
                 COMPILER_FAMILY="GCC"
             fi
         else
-            if "gcc" --version 2>&1 | grep GCC > /dev/null &&   "g++" --version 2>&1 | grep GCC > /dev/null   ; then
+            if "gcc" --version 2>&1 | grep GCC > /dev/null && \
+               "g++" --version 2>&1 | grep GCC > /dev/null \
+            ; then
                 # Autoconf would pick this by default
                 COMPILER_FAMILY="GCC"
-            elif "cc" --version 2>&1 | grep GCC > /dev/null &&   "c++" --version 2>&1 | grep GCC > /dev/null   ; then
+            elif "cc" --version 2>&1 | grep GCC > /dev/null && \
+               "c++" --version 2>&1 | grep GCC > /dev/null \
+            ; then
                 COMPILER_FAMILY="GCC"
             fi
         fi
@@ -111,12 +117,13 @@ if [ "$BUILD_TYPE" == "default" ] || [ "$BUILD_TYPE" == "default-Werror" ] ; the
     git reset --hard HEAD
     (
         ./autogen.sh 2> /dev/null
-        ./configure --enable-drafts=no "${CONFIG_OPTS[@]}"
+        ./configure --enable-drafts=no "${CONFIG_OPTS[@]}" --with-docs=yes
         make VERBOSE=1 all || exit $?
         if [ "$BUILD_TYPE" == "default-Werror" ] ; then
             echo "NOTE: Skipping distcheck for BUILD_TYPE='$BUILD_TYPE'" >&2
         else
-            export DISTCHECK_CONFIGURE_FLAGS="--enable-drafts=no ${CONFIG_OPTS[@]}" &&   make VERBOSE=1 DISTCHECK_CONFIGURE_FLAGS="$DISTCHECK_CONFIGURE_FLAGS" distcheck || exit $?
+            export DISTCHECK_CONFIGURE_FLAGS="--enable-drafts=no ${CONFIG_OPTS[@]} --with-docs=yes" && \
+            make VERBOSE=1 DISTCHECK_CONFIGURE_FLAGS="$DISTCHECK_CONFIGURE_FLAGS" distcheck || exit $?
         fi
     ) || exit 1
 
