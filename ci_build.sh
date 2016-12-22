@@ -39,7 +39,7 @@ if [ "$BUILD_TYPE" == "default" ] || [ "$BUILD_TYPE" == "default-Werror" ] ; the
                "$CXX" --version 2>&1 | grep 'Free Software Foundation' > /dev/null \
             ; then
                 COMPILER_FAMILY="GCC"
-                export CC CXX CPP
+                export CC CXX
             fi
         else
             if "gcc" --version 2>&1 | grep 'Free Software Foundation' > /dev/null && \
@@ -49,14 +49,22 @@ if [ "$BUILD_TYPE" == "default" ] || [ "$BUILD_TYPE" == "default-Werror" ] ; the
                 COMPILER_FAMILY="GCC"
                 [ -n "$CC" ] || CC=gcc
                 [ -n "$CXX" ] || CXX=g++
-                export CC CXX CPP
+                export CC CXX
             elif "cc" --version 2>&1 | grep 'Free Software Foundation' > /dev/null && \
                "c++" --version 2>&1 | grep 'Free Software Foundation' > /dev/null \
             ; then
                 COMPILER_FAMILY="GCC"
                 [ -n "$CC" ] || CC=cc
                 [ -n "$CXX" ] || CXX=c++
-                export CC CXX CPP
+                export CC CXX
+            fi
+        fi
+
+        if [ -n "$CPP" ] ; then
+            [ -x "$CPP" ] && export CPP
+        else
+            if [ -z "$CPP" ] && "cpp" --version 2>&1 | grep 'Free Software Foundation' > /dev/null ; then
+                CPP=cpp && export CPP
             fi
         fi
 
