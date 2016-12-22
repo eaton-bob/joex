@@ -76,9 +76,49 @@ if [ "$BUILD_TYPE" == "default" ] || [ "$BUILD_TYPE" == "default-Werror" ] ; the
     CONFIG_OPTS+=("--with-docs=no")
     CONFIG_OPTS+=("--quiet")
     if [ "$HAVE_CCACHE" = yes ] && [ "${COMPILER_FAMILY}" = GCC ]; then
-        CONFIG_OPTS+=("CC=ccache")
-        CONFIG_OPTS+=("CXX=ccache")
-        CONFIG_OPTS+=("CPP=ccache")
+        if [ -n "$CC" ] && [ -x "/usr/lib/ccache/`basename "$CC"`" ]; then
+            case "$CC" in
+                */*) DIR_CC="`dirname "$CC"`" && [ -n "$DIR_CC" ] && DIR_CC="`cd "$DIR_CC" && pwd `" && [ -n "$DIR_CC" ] && [ -d "$DIR_CC" ] || DIR_CC=""
+                    [ -z "$CCACHE_PATH" ] && CCACHE_PATH="$DIR_CC" || \
+                    if echo "$CCACHE_PATH" | egrep '(^'"$DIR_CC"':.*|^'"$DIR_CC"'$|:'"$DIR_CC"':|:'"$DIR_CC"'$)' ; then
+                        CCACHE_PATH="$DIR_CC:$CCACHE_PATH"
+                    fi
+                    ;;
+            esac
+            CC="/usr/lib/ccache/`basename "$CC"`"
+        else
+            CC="ccache"
+        fi
+        if [ -n "$CXX" ] && [ -x "/usr/lib/ccache/`basename "$CXX"`" ]; then
+            case "$CXX" in
+                */*) DIR_CXX="`dirname "$CXX"`" && [ -n "$DIR_CXX" ] && DIR_CXX="`cd "$DIR_CXX" && pwd `" && [ -n "$DIR_CXX" ] && [ -d "$DIR_CXX" ] || DIR_CXX=""
+                    [ -z "$CCACHE_PATH" ] && CCACHE_PATH="$DIR_CXX" || \
+                    if echo "$CCACHE_PATH" | egrep '(^'"$DIR_CXX"':.*|^'"$DIR_CXX"'$|:'"$DIR_CXX"':|:'"$DIR_CXX"'$)' ; then
+                        CCACHE_PATH="$DIR_CXX:$CCACHE_PATH"
+                    fi
+                    ;;
+            esac
+            CXX="/usr/lib/ccache/`basename "$CXX"`"
+        else
+            CXX="ccache"
+        fi
+        if [ -n "$CPP" ] && [ -x "/usr/lib/ccache/`basename "$CPP"`" ]; then
+            case "$CPP" in
+                */*) DIR_CPP="`dirname "$CPP"`" && [ -n "$DIR_CPP" ] && DIR_CPP="`cd "$DIR_CPP" && pwd `" && [ -n "$DIR_CPP" ] && [ -d "$DIR_CPP" ] || DIR_CPP=""
+                    [ -z "$CCACHE_PATH" ] && CCACHE_PATH="$DIR_CPP" || \
+                    if echo "$CCACHE_PATH" | egrep '(^'"$DIR_CPP"':.*|^'"$DIR_CPP"'$|:'"$DIR_CPP"':|:'"$DIR_CPP"'$)' ; then
+                        CCACHE_PATH="$DIR_CPP:$CCACHE_PATH"
+                    fi
+                    ;;
+            esac
+            CPP="/usr/lib/ccache/`basename "$CPP"`"
+        else
+            CPP="ccache"
+        fi
+
+        CONFIG_OPTS+=("CC=${CC}")
+        CONFIG_OPTS+=("CXX=${CXX}")
+        CONFIG_OPTS+=("CPP=${CPP}")
     fi
 
     # Clone and build dependencies
