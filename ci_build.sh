@@ -126,6 +126,8 @@ if [ "$BUILD_TYPE" == "default" ] || [ "$BUILD_TYPE" == "default-Werror" ] ; the
     time git clone --quiet --depth 1 https://github.com/zeromq/libzmq.git libzmq.git
     BASE_PWD=${PWD}
     cd libzmq.git
+    CCACHE_BASEDIR=${PWD}
+    export CCACHE_BASEDIR
     git --no-pager log --oneline -n1
     if [ -e autogen.sh ]; then
         time ./autogen.sh 2> /dev/null
@@ -148,6 +150,8 @@ if [ "$BUILD_TYPE" == "default" ] || [ "$BUILD_TYPE" == "default-Werror" ] ; the
     time git clone --quiet --depth 1 https://github.com/zeromq/czmq.git czmq.git
     BASE_PWD=${PWD}
     cd czmq.git
+    CCACHE_BASEDIR=${PWD}
+    export CCACHE_BASEDIR
     git --no-pager log --oneline -n1
     if [ -e autogen.sh ]; then
         time ./autogen.sh 2> /dev/null
@@ -170,6 +174,8 @@ if [ "$BUILD_TYPE" == "default" ] || [ "$BUILD_TYPE" == "default-Werror" ] ; the
     time git clone --quiet --depth 1 https://github.com/zeromq/malamute.git malamute.git
     BASE_PWD=${PWD}
     cd malamute.git
+    CCACHE_BASEDIR=${PWD}
+    export CCACHE_BASEDIR
     git --no-pager log --oneline -n1
     if [ -e autogen.sh ]; then
         time ./autogen.sh 2> /dev/null
@@ -192,6 +198,8 @@ if [ "$BUILD_TYPE" == "default" ] || [ "$BUILD_TYPE" == "default-Werror" ] ; the
     time git clone --quiet --depth 1 https://github.com/zeromq/zyre.git zyre.git
     BASE_PWD=${PWD}
     cd zyre.git
+    CCACHE_BASEDIR=${PWD}
+    export CCACHE_BASEDIR
     git --no-pager log --oneline -n1
     if [ -e autogen.sh ]; then
         time ./autogen.sh 2> /dev/null
@@ -214,6 +222,8 @@ if [ "$BUILD_TYPE" == "default" ] || [ "$BUILD_TYPE" == "default-Werror" ] ; the
 
     # Build and check this project; note that zprojects always have an autogen.sh
     echo "`date`: Starting build of currently tested project with DRAFT APIs..."
+    CCACHE_BASEDIR=${PWD}
+    export CCACHE_BASEDIR
     time ./autogen.sh 2> /dev/null
     time ./configure --enable-drafts=yes "${CONFIG_OPTS[@]}"
     time make VERBOSE=1 all
