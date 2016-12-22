@@ -21,7 +21,7 @@ if [ "$BUILD_TYPE" == "default" ] || [ "$BUILD_TYPE" == "default-Werror" ] ; the
 
     CCACHE_PATH="$PATH"
     CCACHE_DIR="$PWD/.ccache"
-    export CCACHE_PATH
+    export CCACHE_PATH CCACHE_DIR
     HAVE_CCACHE=no
     if which ccache && ls -la /usr/lib/ccache ; then
         HAVE_CCACHE=yes
