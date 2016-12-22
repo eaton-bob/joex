@@ -19,9 +19,10 @@ if [ "$BUILD_TYPE" == "default" ] || [ "$BUILD_TYPE" == "default-Werror" ] ; the
     mkdir -p tmp .ccache
     BUILD_PREFIX=$PWD/tmp
 
+    PATH="`echo "$PATH" | sed -e 's,^/usr/lib/ccache/?:,,' -e 's,:/usr/lib/ccache/?:,,' -e 's,:/usr/lib/ccache/?$,,' -e 's,^/usr/lib/ccache/?$,,'2`"
     CCACHE_PATH="$PATH"
     CCACHE_DIR="$PWD/.ccache"
-    export CCACHE_PATH CCACHE_DIR
+    export CCACHE_PATH CCACHE_DIR PATH
     HAVE_CCACHE=no
     if which ccache && ls -la /usr/lib/ccache ; then
         HAVE_CCACHE=yes
