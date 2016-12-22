@@ -12,19 +12,23 @@ if [ "$BUILD_TYPE" == "default" ] || [ "$BUILD_TYPE" == "default-Werror" ] ; the
     if [ -d "./tmp" ]; then
         rm -rf ./tmp
     fi
-    mkdir -p tmp
+    mkdir -p tmp .ccache
     BUILD_PREFIX=$PWD/tmp
 
     CCACHE_PATH="$PATH"
-    which ccache || true
-    ls -la /usr/lib/ccache || true
+    CCACHE_DIR="$PWD/.ccache"
+    export CCACHE_PATH
+    HAVE_CCACHE=no
+    if which ccache && ls -la /usr/lib/ccache ; then
+        HAVE_CCACHE=yes
+    fi
 
     CONFIG_OPTS=()
     COMMON_CFLAGS=""
     EXTRA_CFLAGS=""
     EXTRA_CPPFLAGS=""
     EXTRA_CXXFLAGS=""
-    if [ "$BUILD_TYPE" == "default-Werror" ] ; then
+
         COMPILER_FAMILY=""
         if [ -n "$CC" -a -n "$CXX" ]; then
             if "$CC" --version 2>&1 | grep GCC > /dev/null && \
@@ -45,6 +49,7 @@ if [ "$BUILD_TYPE" == "default" ] || [ "$BUILD_TYPE" == "default-Werror" ] ; the
             fi
         fi
 
+    if [ "$BUILD_TYPE" == "default-Werror" ] ; then
         case "${COMPILER_FAMILY}" in
             GCC)
                 echo "NOTE: Enabling ${COMPILER_FAMILY} compiler pedantic error-checking flags for BUILD_TYPE='$BUILD_TYPE'" >&2
@@ -66,6 +71,11 @@ if [ "$BUILD_TYPE" == "default" ] || [ "$BUILD_TYPE" == "default-Werror" ] ; the
     CONFIG_OPTS+=("--prefix=${BUILD_PREFIX}")
     CONFIG_OPTS+=("--with-docs=no")
     CONFIG_OPTS+=("--quiet")
+    if [ "$HAVE_CCACHE" = yes ] && [ "${COMPILER_FAMILY}" = GCC ]; then
+        CONFIG_OPTS+=("CC=ccache")
+        CONFIG_OPTS+=("CXX=ccache")
+        CONFIG_OPTS+=("CPP=ccache")
+    fi
 
     # Clone and build dependencies
     echo "`date`: Starting build of dependencies (if any)..."
@@ -200,6 +210,10 @@ if [ "$BUILD_TYPE" == "default" ] || [ "$BUILD_TYPE" == "default-Werror" ] ; the
     echo "=== Are GitIgnores good after 'make distcheck' without drafts? (should have no output below)"
     git status -s || true
     echo "==="
+
+    if [ "$HAVE_CCACHE" = yes ]; then
+        ccache -s
+    fi
 
 elif [ "$BUILD_TYPE" == "bindings" ]; then
     pushd "./bindings/${BINDING}" && ./ci_build.sh
