@@ -9,6 +9,10 @@ set -x
 set -e
 
 if [ "$BUILD_TYPE" == "default" ] || [ "$BUILD_TYPE" == "default-Werror" ] ; then
+    LANG=C
+    LC_ALL=C
+    export LANG LC_ALL
+
     if [ -d "./tmp" ]; then
         rm -rf ./tmp
     fi
