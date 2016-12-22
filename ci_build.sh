@@ -39,6 +39,7 @@ if [ "$BUILD_TYPE" == "default" ] || [ "$BUILD_TYPE" == "default-Werror" ] ; the
                "$CXX" --version 2>&1 | grep 'Free Software Foundation' > /dev/null \
             ; then
                 COMPILER_FAMILY="GCC"
+                export CC CXX CPP
             fi
         else
             if "gcc" --version 2>&1 | grep 'Free Software Foundation' > /dev/null && \
@@ -46,10 +47,16 @@ if [ "$BUILD_TYPE" == "default" ] || [ "$BUILD_TYPE" == "default-Werror" ] ; the
             ; then
                 # Autoconf would pick this by default
                 COMPILER_FAMILY="GCC"
+                [ -n "$CC" ] || CC=gcc
+                [ -n "$CXX" ] || CXX=g++
+                export CC CXX CPP
             elif "cc" --version 2>&1 | grep 'Free Software Foundation' > /dev/null && \
                "c++" --version 2>&1 | grep 'Free Software Foundation' > /dev/null \
             ; then
                 COMPILER_FAMILY="GCC"
+                [ -n "$CC" ] || CC=cc
+                [ -n "$CXX" ] || CXX=c++
+                export CC CXX CPP
             fi
         fi
 
@@ -76,6 +83,8 @@ if [ "$BUILD_TYPE" == "default" ] || [ "$BUILD_TYPE" == "default-Werror" ] ; the
     CONFIG_OPTS+=("--with-docs=no")
     CONFIG_OPTS+=("--quiet")
     if [ "$HAVE_CCACHE" = yes ] && [ "${COMPILER_FAMILY}" = GCC ]; then
+        PATH="/usr/lib/ccache:$PATH"
+        export PATH
         if [ -n "$CC" ] && [ -x "/usr/lib/ccache/`basename "$CC"`" ]; then
             case "$CC" in
                 */*) DIR_CC="`dirname "$CC"`" && [ -n "$DIR_CC" ] && DIR_CC="`cd "$DIR_CC" && pwd `" && [ -n "$DIR_CC" ] && [ -d "$DIR_CC" ] || DIR_CC=""
@@ -87,7 +96,7 @@ if [ "$BUILD_TYPE" == "default" ] || [ "$BUILD_TYPE" == "default-Werror" ] ; the
             esac
             CC="/usr/lib/ccache/`basename "$CC"`"
         else
-            CC="ccache"
+            CC="ccache $CC"
         fi
         if [ -n "$CXX" ] && [ -x "/usr/lib/ccache/`basename "$CXX"`" ]; then
             case "$CXX" in
@@ -100,7 +109,7 @@ if [ "$BUILD_TYPE" == "default" ] || [ "$BUILD_TYPE" == "default-Werror" ] ; the
             esac
             CXX="/usr/lib/ccache/`basename "$CXX"`"
         else
-            CXX="ccache"
+            CXX="ccache $CXX"
         fi
         if [ -n "$CPP" ] && [ -x "/usr/lib/ccache/`basename "$CPP"`" ]; then
             case "$CPP" in
@@ -113,7 +122,7 @@ if [ "$BUILD_TYPE" == "default" ] || [ "$BUILD_TYPE" == "default-Werror" ] ; the
             esac
             CPP="/usr/lib/ccache/`basename "$CPP"`"
         else
-            CPP="ccache"
+            CPP="ccache $CPP"
         fi
 
         CONFIG_OPTS+=("CC=${CC}")
