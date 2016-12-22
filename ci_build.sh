@@ -34,7 +34,7 @@ if [ "$BUILD_TYPE" == "default" ] || [ "$BUILD_TYPE" == "default-Werror" ] ; the
     EXTRA_CXXFLAGS=""
 
     is_gnucc() {
-        [ -z "$1" ] && "$1" --version 2>&1 | grep 'Free Software Foundation' > /dev/null
+        if [ -z "$1" ] && "$1" --version 2>&1 | grep 'Free Software Foundation' > /dev/null ; then true ; else false ; fi
     }
 
         COMPILER_FAMILY=""
