@@ -70,6 +70,7 @@ if [ "$BUILD_TYPE" == "default" ] || [ "$BUILD_TYPE" == "default-Werror" ] ; the
     # Clone and build dependencies
     echo "`date`: Starting build of dependencies (if any)..."
     time git clone --quiet --depth 1 https://github.com/zeromq/libzmq.git libzmq.git
+    BASE_PWD=${PWD}
     cd libzmq.git
     git --no-pager log --oneline -n1
     if [ -e autogen.sh ]; then
@@ -78,11 +79,20 @@ if [ "$BUILD_TYPE" == "default" ] || [ "$BUILD_TYPE" == "default-Werror" ] ; the
     if [ -e buildconf ]; then
         time ./buildconf 2> /dev/null
     fi
+    if [ ! -e autogen.sh ] && [ ! -e buildconf ] && [ ! -e ./configure ] && [ -s ./configure.ac ]; then
+        time libtoolize --copy --force && \
+        time aclocal -I . && \
+        time autoheader && \
+        time automake --add-missing --copy && \
+        time autoconf || \
+        time autoreconf -fiv
+    fi
     time ./configure "${CONFIG_OPTS[@]}"
     time make -j4
     time make install
-    cd ..
+    cd "${BASE_PWD}"
     time git clone --quiet --depth 1 https://github.com/zeromq/czmq.git czmq.git
+    BASE_PWD=${PWD}
     cd czmq.git
     git --no-pager log --oneline -n1
     if [ -e autogen.sh ]; then
@@ -91,11 +101,20 @@ if [ "$BUILD_TYPE" == "default" ] || [ "$BUILD_TYPE" == "default-Werror" ] ; the
     if [ -e buildconf ]; then
         time ./buildconf 2> /dev/null
     fi
+    if [ ! -e autogen.sh ] && [ ! -e buildconf ] && [ ! -e ./configure ] && [ -s ./configure.ac ]; then
+        time libtoolize --copy --force && \
+        time aclocal -I . && \
+        time autoheader && \
+        time automake --add-missing --copy && \
+        time autoconf || \
+        time autoreconf -fiv
+    fi
     time ./configure "${CONFIG_OPTS[@]}"
     time make -j4
     time make install
-    cd ..
+    cd "${BASE_PWD}"
     time git clone --quiet --depth 1 https://github.com/zeromq/malamute.git malamute.git
+    BASE_PWD=${PWD}
     cd malamute.git
     git --no-pager log --oneline -n1
     if [ -e autogen.sh ]; then
@@ -104,11 +123,20 @@ if [ "$BUILD_TYPE" == "default" ] || [ "$BUILD_TYPE" == "default-Werror" ] ; the
     if [ -e buildconf ]; then
         time ./buildconf 2> /dev/null
     fi
+    if [ ! -e autogen.sh ] && [ ! -e buildconf ] && [ ! -e ./configure ] && [ -s ./configure.ac ]; then
+        time libtoolize --copy --force && \
+        time aclocal -I . && \
+        time autoheader && \
+        time automake --add-missing --copy && \
+        time autoconf || \
+        time autoreconf -fiv
+    fi
     time ./configure "${CONFIG_OPTS[@]}"
     time make -j4
     time make install
-    cd ..
+    cd "${BASE_PWD}"
     time git clone --quiet --depth 1 https://github.com/zeromq/zyre.git zyre.git
+    BASE_PWD=${PWD}
     cd zyre.git
     git --no-pager log --oneline -n1
     if [ -e autogen.sh ]; then
@@ -117,12 +145,20 @@ if [ "$BUILD_TYPE" == "default" ] || [ "$BUILD_TYPE" == "default-Werror" ] ; the
     if [ -e buildconf ]; then
         time ./buildconf 2> /dev/null
     fi
+    if [ ! -e autogen.sh ] && [ ! -e buildconf ] && [ ! -e ./configure ] && [ -s ./configure.ac ]; then
+        time libtoolize --copy --force && \
+        time aclocal -I . && \
+        time autoheader && \
+        time automake --add-missing --copy && \
+        time autoconf || \
+        time autoreconf -fiv
+    fi
     time ./configure "${CONFIG_OPTS[@]}"
     time make -j4
     time make install
-    cd ..
+    cd "${BASE_PWD}"
 
-    # Build and check this project
+    # Build and check this project; note that zprojects always have an autogen.sh
     echo "`date`: Starting build of currently tested project with DRAFT APIs..."
     time ./autogen.sh 2> /dev/null
     time ./configure --enable-drafts=yes "${CONFIG_OPTS[@]}"

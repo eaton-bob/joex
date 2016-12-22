@@ -31,6 +31,14 @@ fi
 if [ -e buildconf ]; then
     time ./buildconf 2> /dev/null
 fi
+if [ ! -e autogen.sh ] && [ ! -e buildconf ] && [ ! -e ./configure ] && [ -s ./configure.ac ]; then
+    time libtoolize --copy --force && \
+    time aclocal -I . && \
+    time autoheader && \
+    time automake --add-missing --copy && \
+    time autoconf || \
+    time autoreconf -fiv
+fi
 time ./configure "${CONFIG_OPTS[@]}"
 time make -j4
 time make install
@@ -43,6 +51,14 @@ if [ -e autogen.sh ]; then
 fi
 if [ -e buildconf ]; then
     time ./buildconf 2> /dev/null
+fi
+if [ ! -e autogen.sh ] && [ ! -e buildconf ] && [ ! -e ./configure ] && [ -s ./configure.ac ]; then
+    time libtoolize --copy --force && \
+    time aclocal -I . && \
+    time autoheader && \
+    time automake --add-missing --copy && \
+    time autoconf || \
+    time autoreconf -fiv
 fi
 time ./configure "${CONFIG_OPTS[@]}"
 time make -j4
@@ -57,6 +73,14 @@ fi
 if [ -e buildconf ]; then
     time ./buildconf 2> /dev/null
 fi
+if [ ! -e autogen.sh ] && [ ! -e buildconf ] && [ ! -e ./configure ] && [ -s ./configure.ac ]; then
+    time libtoolize --copy --force && \
+    time aclocal -I . && \
+    time autoheader && \
+    time automake --add-missing --copy && \
+    time autoconf || \
+    time autoreconf -fiv
+fi
 time ./configure "${CONFIG_OPTS[@]}"
 time make -j4
 time make install
@@ -69,6 +93,14 @@ if [ -e autogen.sh ]; then
 fi
 if [ -e buildconf ]; then
     time ./buildconf 2> /dev/null
+fi
+if [ ! -e autogen.sh ] && [ ! -e buildconf ] && [ ! -e ./configure ] && [ -s ./configure.ac ]; then
+    time libtoolize --copy --force && \
+    time aclocal -I . && \
+    time autoheader && \
+    time automake --add-missing --copy && \
+    time autoconf || \
+    time autoreconf -fiv
 fi
 time ./configure "${CONFIG_OPTS[@]}"
 time make -j4

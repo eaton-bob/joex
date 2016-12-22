@@ -29,13 +29,18 @@ noinst_PROGRAMS =
 check_PROGRAMS =
 noinst_LTLIBRARIES =
 TESTS =
+EXTRA_DIST =
 
-EXTRA_DIST = \
-    CMakeLists.txt \
+if ENABLE_DIST_CMAKEFILES
+EXTRA_DIST += \
     Findlibzmq.cmake \
     Findczmq.cmake \
     Findmalamute.cmake \
     Findzyre.cmake \
+    CMakeLists.txt
+endif
+
+EXTRA_DIST += \
     LICENSE \
     README.md \
     src/joex_classes.h
