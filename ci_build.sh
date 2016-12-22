@@ -33,26 +33,24 @@ if [ "$BUILD_TYPE" == "default" ] || [ "$BUILD_TYPE" == "default-Werror" ] ; the
     EXTRA_CPPFLAGS=""
     EXTRA_CXXFLAGS=""
 
+    is_gnucc() {
+        [ -z "$1" ] && "$1" --version 2>&1 | grep 'Free Software Foundation' > /dev/null
+    }
+
         COMPILER_FAMILY=""
         if [ -n "$CC" -a -n "$CXX" ]; then
-            if "$CC" --version 2>&1 | grep 'Free Software Foundation' > /dev/null && \
-               "$CXX" --version 2>&1 | grep 'Free Software Foundation' > /dev/null \
-            ; then
+            if is_gnucc "$CC" && is_gnucc "$CXX" ; then
                 COMPILER_FAMILY="GCC"
                 export CC CXX
             fi
         else
-            if "gcc" --version 2>&1 | grep 'Free Software Foundation' > /dev/null && \
-               "g++" --version 2>&1 | grep 'Free Software Foundation' > /dev/null \
-            ; then
+            if is_gnucc "gcc" && is_gnucc "g++" ; then
                 # Autoconf would pick this by default
                 COMPILER_FAMILY="GCC"
                 [ -n "$CC" ] || CC=gcc
                 [ -n "$CXX" ] || CXX=g++
                 export CC CXX
-            elif "cc" --version 2>&1 | grep 'Free Software Foundation' > /dev/null && \
-               "c++" --version 2>&1 | grep 'Free Software Foundation' > /dev/null \
-            ; then
+            elif is_gnucc "cc" && is_gnucc "c++" ; then
                 COMPILER_FAMILY="GCC"
                 [ -n "$CC" ] || CC=cc
                 [ -n "$CXX" ] || CXX=c++
@@ -63,7 +61,7 @@ if [ "$BUILD_TYPE" == "default" ] || [ "$BUILD_TYPE" == "default-Werror" ] ; the
         if [ -n "$CPP" ] ; then
             [ -x "$CPP" ] && export CPP
         else
-            if [ -z "$CPP" ] && "cpp" --version 2>&1 | grep 'Free Software Foundation' > /dev/null ; then
+            if is_gnucc "cpp" ; then
                 CPP=cpp && export CPP
             fi
         fi
