@@ -621,6 +621,8 @@ echo Package version............... : $PACKAGE-$VERSION
 echo
 echo C compiler.................... : $CC
 echo C compiler flags.............. : $CFLAGS
+echo C++ compiler.................. : $CXX
+echo C++ compiler flags............ : $CXXFLAGS
 echo Configure date................ : $BUILD_DATE
 echo Build architecture............ : $BUILD_ARCH
 echo Build docs.................... : $joex_build_doc
