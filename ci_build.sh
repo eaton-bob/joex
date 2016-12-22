@@ -104,7 +104,7 @@ if [ "$BUILD_TYPE" == "default" ] || [ "$BUILD_TYPE" == "default-Werror" ] ; the
             esac
             CC="/usr/lib/ccache/`basename "$CC"`"
         else
-            CC="ccache $CC"
+            : # CC="ccache $CC"
         fi
         if [ -n "$CXX" ] && [ -x "/usr/lib/ccache/`basename "$CXX"`" ]; then
             case "$CXX" in
@@ -117,7 +117,7 @@ if [ "$BUILD_TYPE" == "default" ] || [ "$BUILD_TYPE" == "default-Werror" ] ; the
             esac
             CXX="/usr/lib/ccache/`basename "$CXX"`"
         else
-            CXX="ccache $CXX"
+            : # CXX="ccache $CXX"
         fi
         if [ -n "$CPP" ] && [ -x "/usr/lib/ccache/`basename "$CPP"`" ]; then
             case "$CPP" in
@@ -130,7 +130,7 @@ if [ "$BUILD_TYPE" == "default" ] || [ "$BUILD_TYPE" == "default-Werror" ] ; the
             esac
             CPP="/usr/lib/ccache/`basename "$CPP"`"
         else
-            CPP="ccache $CPP"
+            : # CPP="ccache $CPP"
         fi
 
         CONFIG_OPTS+=("CC=${CC}")
