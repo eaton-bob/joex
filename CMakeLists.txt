@@ -172,6 +172,9 @@ set_target_properties(joex
 set_target_properties(joex
     PROPERTIES LIBRARY_OUTPUT_DIRECTORY "${SOURCE_DIR}/src"
 )
+set_target_properties (joex
+    PROPERTIES SOVERSION "0.0.0"
+)
 target_link_libraries(joex
     ${ZEROMQ_LIBRARIES} ${MORE_LIBRARIES}
 )
@@ -225,6 +228,9 @@ set_target_properties(
     joexd
     PROPERTIES RUNTIME_OUTPUT_DIRECTORY "${SOURCE_DIR}/src"
 )
+install(TARGETS joexd
+    RUNTIME DESTINATION bin
+)
 add_executable(
     joexc
     "${SOURCE_DIR}/src/joexc.c"
@@ -242,6 +248,9 @@ set_target_properties(
     joexc
     PROPERTIES RUNTIME_OUTPUT_DIRECTORY "${SOURCE_DIR}/src"
 )
+install(TARGETS joexc
+    RUNTIME DESTINATION bin
+)
 add_executable(
     joex_selftest
     "${SOURCE_DIR}/src/joex_selftest.c"
@@ -258,6 +267,9 @@ target_link_libraries(
 set_target_properties(
     joex_selftest
     PROPERTIES RUNTIME_OUTPUT_DIRECTORY "${SOURCE_DIR}/src"
+)
+install(TARGETS joex_selftest
+    RUNTIME DESTINATION bin
 )
 
 ########################################################################
