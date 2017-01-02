@@ -71,7 +71,10 @@ install_manifest.txt
 Testing/
 
 # Repositories downloaded by CI integration scripts
-*.git/
+libzmq/
+czmq/
+malamute/
+zyre/
 
 # Travis build area
 tmp/
