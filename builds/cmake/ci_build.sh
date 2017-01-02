@@ -1,7 +1,32 @@
 #!/usr/bin/env bash
-set -ex
+set -e
 
-mkdir tmp
+# Set this to enable verbose profiling
+[ -n "${CI_TIME-}" ] || CI_TIME=""
+case "$CI_TIME" in
+    [Yy][Ee][Ss]|[Oo][Nn]|[Tt][Rr][Uu][Ee])
+        CI_TIME="time -p " ;;
+    [Nn][Oo]|[Oo][Ff][Ff]|[Ff][Aa][Ll][Ss][Ee])
+        CI_TIME="" ;;
+esac
+
+# Set this to enable verbose tracing
+[ -n "${CI_TRACE-}" ] || CI_TRACE="no"
+case "$CI_TRACE" in
+    [Nn][Oo]|[Oo][Ff][Ff]|[Ff][Aa][Ll][Ss][Ee])
+        set +x ;;
+    [Yy][Ee][Ss]|[Oo][Nn]|[Tt][Rr][Uu][Ee])
+        set -x ;;
+esac
+
+LANG=C
+LC_ALL=C
+export LANG LC_ALL
+
+if [ -d "./tmp" ]; then
+    rm -rf ./tmp
+fi
+mkdir -p tmp
 BUILD_PREFIX=$PWD/tmp
 
 CONFIG_OPTS=()
@@ -21,100 +46,126 @@ CMAKE_OPTS+=("-DCMAKE_LIBRARY_PATH:PATH=${BUILD_PREFIX}/lib")
 CMAKE_OPTS+=("-DCMAKE_INCLUDE_PATH:PATH=${BUILD_PREFIX}/include")
 
 # Clone and build dependencies
-echo "`date`: Starting build of dependencies (if any)..."
-time git clone --quiet --depth 1 https://github.com/zeromq/libzmq.git libzmq.git
-cd libzmq.git
-git --no-pager log --oneline -n1
-if [ -e autogen.sh ]; then
-    time ./autogen.sh 2> /dev/null
+[ -z "$CI_TIME" ] || echo "`date`: Starting build of dependencies (if any)..."
+if ! ((command -v dpkg-query >/dev/null 2>&1 && dpkg-query --list libzmq3-dev >/dev/null 2>&1) || \
+       (command -v brew >/dev/null 2>&1 && brew ls --versions libzmq >/dev/null 2>&1)); then
+    $CI_TIME git clone --quiet --depth 1 https://github.com/zeromq/libzmq.git libzmq
+    BASE_PWD=${PWD}
+    cd libzmq
+    CCACHE_BASEDIR=${PWD}
+    export CCACHE_BASEDIR
+    git --no-pager log --oneline -n1
+    if [ -e autogen.sh ]; then
+        $CI_TIME ./autogen.sh 2> /dev/null
+    fi
+    if [ -e buildconf ]; then
+        $CI_TIME ./buildconf 2> /dev/null
+    fi
+    if [ ! -e autogen.sh ] && [ ! -e buildconf ] && [ ! -e ./configure ] && [ -s ./configure.ac ]; then
+        $CI_TIME libtoolize --copy --force && \
+        $CI_TIME aclocal -I . && \
+        $CI_TIME autoheader && \
+        $CI_TIME automake --add-missing --copy && \
+        $CI_TIME autoconf || \
+        $CI_TIME autoreconf -fiv
+    fi
+    $CI_TIME ./configure "${CONFIG_OPTS[@]}"
+    $CI_TIME make -j4
+    $CI_TIME make install
+    cd "${BASE_PWD}"
 fi
-if [ -e buildconf ]; then
-    time ./buildconf 2> /dev/null
+if ! ((command -v dpkg-query >/dev/null 2>&1 && dpkg-query --list libczmq-dev >/dev/null 2>&1) || \
+       (command -v brew >/dev/null 2>&1 && brew ls --versions czmq >/dev/null 2>&1)); then
+    $CI_TIME git clone --quiet --depth 1 https://github.com/zeromq/czmq.git czmq
+    BASE_PWD=${PWD}
+    cd czmq
+    CCACHE_BASEDIR=${PWD}
+    export CCACHE_BASEDIR
+    git --no-pager log --oneline -n1
+    if [ -e autogen.sh ]; then
+        $CI_TIME ./autogen.sh 2> /dev/null
+    fi
+    if [ -e buildconf ]; then
+        $CI_TIME ./buildconf 2> /dev/null
+    fi
+    if [ ! -e autogen.sh ] && [ ! -e buildconf ] && [ ! -e ./configure ] && [ -s ./configure.ac ]; then
+        $CI_TIME libtoolize --copy --force && \
+        $CI_TIME aclocal -I . && \
+        $CI_TIME autoheader && \
+        $CI_TIME automake --add-missing --copy && \
+        $CI_TIME autoconf || \
+        $CI_TIME autoreconf -fiv
+    fi
+    $CI_TIME ./configure "${CONFIG_OPTS[@]}"
+    $CI_TIME make -j4
+    $CI_TIME make install
+    cd "${BASE_PWD}"
 fi
-if [ ! -e autogen.sh ] && [ ! -e buildconf ] && [ ! -e ./configure ] && [ -s ./configure.ac ]; then
-    time libtoolize --copy --force && \
-    time aclocal -I . && \
-    time autoheader && \
-    time automake --add-missing --copy && \
-    time autoconf || \
-    time autoreconf -fiv
+if ! ((command -v dpkg-query >/dev/null 2>&1 && dpkg-query --list libmlm-dev >/dev/null 2>&1) || \
+       (command -v brew >/dev/null 2>&1 && brew ls --versions malamute >/dev/null 2>&1)); then
+    $CI_TIME git clone --quiet --depth 1 https://github.com/zeromq/malamute.git malamute
+    BASE_PWD=${PWD}
+    cd malamute
+    CCACHE_BASEDIR=${PWD}
+    export CCACHE_BASEDIR
+    git --no-pager log --oneline -n1
+    if [ -e autogen.sh ]; then
+        $CI_TIME ./autogen.sh 2> /dev/null
+    fi
+    if [ -e buildconf ]; then
+        $CI_TIME ./buildconf 2> /dev/null
+    fi
+    if [ ! -e autogen.sh ] && [ ! -e buildconf ] && [ ! -e ./configure ] && [ -s ./configure.ac ]; then
+        $CI_TIME libtoolize --copy --force && \
+        $CI_TIME aclocal -I . && \
+        $CI_TIME autoheader && \
+        $CI_TIME automake --add-missing --copy && \
+        $CI_TIME autoconf || \
+        $CI_TIME autoreconf -fiv
+    fi
+    $CI_TIME ./configure "${CONFIG_OPTS[@]}"
+    $CI_TIME make -j4
+    $CI_TIME make install
+    cd "${BASE_PWD}"
 fi
-time ./configure "${CONFIG_OPTS[@]}"
-time make -j4
-time make install
-cd ..
-time git clone --quiet --depth 1 https://github.com/zeromq/czmq.git czmq.git
-cd czmq.git
-git --no-pager log --oneline -n1
-if [ -e autogen.sh ]; then
-    time ./autogen.sh 2> /dev/null
+if ! ((command -v dpkg-query >/dev/null 2>&1 && dpkg-query --list libzyre-dev >/dev/null 2>&1) || \
+       (command -v brew >/dev/null 2>&1 && brew ls --versions zyre >/dev/null 2>&1)); then
+    $CI_TIME git clone --quiet --depth 1 https://github.com/zeromq/zyre.git zyre
+    BASE_PWD=${PWD}
+    cd zyre
+    CCACHE_BASEDIR=${PWD}
+    export CCACHE_BASEDIR
+    git --no-pager log --oneline -n1
+    if [ -e autogen.sh ]; then
+        $CI_TIME ./autogen.sh 2> /dev/null
+    fi
+    if [ -e buildconf ]; then
+        $CI_TIME ./buildconf 2> /dev/null
+    fi
+    if [ ! -e autogen.sh ] && [ ! -e buildconf ] && [ ! -e ./configure ] && [ -s ./configure.ac ]; then
+        $CI_TIME libtoolize --copy --force && \
+        $CI_TIME aclocal -I . && \
+        $CI_TIME autoheader && \
+        $CI_TIME automake --add-missing --copy && \
+        $CI_TIME autoconf || \
+        $CI_TIME autoreconf -fiv
+    fi
+    $CI_TIME ./configure "${CONFIG_OPTS[@]}"
+    $CI_TIME make -j4
+    $CI_TIME make install
+    cd "${BASE_PWD}"
 fi
-if [ -e buildconf ]; then
-    time ./buildconf 2> /dev/null
-fi
-if [ ! -e autogen.sh ] && [ ! -e buildconf ] && [ ! -e ./configure ] && [ -s ./configure.ac ]; then
-    time libtoolize --copy --force && \
-    time aclocal -I . && \
-    time autoheader && \
-    time automake --add-missing --copy && \
-    time autoconf || \
-    time autoreconf -fiv
-fi
-time ./configure "${CONFIG_OPTS[@]}"
-time make -j4
-time make install
-cd ..
-time git clone --quiet --depth 1 https://github.com/zeromq/malamute.git malamute.git
-cd malamute.git
-git --no-pager log --oneline -n1
-if [ -e autogen.sh ]; then
-    time ./autogen.sh 2> /dev/null
-fi
-if [ -e buildconf ]; then
-    time ./buildconf 2> /dev/null
-fi
-if [ ! -e autogen.sh ] && [ ! -e buildconf ] && [ ! -e ./configure ] && [ -s ./configure.ac ]; then
-    time libtoolize --copy --force && \
-    time aclocal -I . && \
-    time autoheader && \
-    time automake --add-missing --copy && \
-    time autoconf || \
-    time autoreconf -fiv
-fi
-time ./configure "${CONFIG_OPTS[@]}"
-time make -j4
-time make install
-cd ..
-time git clone --quiet --depth 1 https://github.com/zeromq/zyre.git zyre.git
-cd zyre.git
-git --no-pager log --oneline -n1
-if [ -e autogen.sh ]; then
-    time ./autogen.sh 2> /dev/null
-fi
-if [ -e buildconf ]; then
-    time ./buildconf 2> /dev/null
-fi
-if [ ! -e autogen.sh ] && [ ! -e buildconf ] && [ ! -e ./configure ] && [ -s ./configure.ac ]; then
-    time libtoolize --copy --force && \
-    time aclocal -I . && \
-    time autoheader && \
-    time automake --add-missing --copy && \
-    time autoconf || \
-    time autoreconf -fiv
-fi
-time ./configure "${CONFIG_OPTS[@]}"
-time make -j4
-time make install
-cd ..
 
 # Build and check this project
 cd ../..
-echo "`date`: Starting build of currently tested project..."
-PKG_CONFIG_PATH=${BUILD_PREFIX}/lib/pkgconfig time cmake "${CMAKE_OPTS[@]}" .
-time make all VERBOSE=1 -j4
-time ctest -V
-time make install
-echo "`date`: Builds completed without fatal errors!"
+[ -z "$CI_TIME" ] || echo "`date`: Starting build of currently tested project..."
+CCACHE_BASEDIR=${PWD}
+export CCACHE_BASEDIR
+PKG_CONFIG_PATH=${BUILD_PREFIX}/lib/pkgconfig $CI_TIME cmake "${CMAKE_OPTS[@]}" .
+$CI_TIME make all VERBOSE=1 -j4
+$CI_TIME ctest -V
+$CI_TIME make install
+[ -z "$CI_TIME" ] || echo "`date`: Builds completed without fatal errors!"
 
 echo "=== Are GitIgnores good after making the project '$BUILD_TYPE'? (should have no output below)"
 git status -s || true
